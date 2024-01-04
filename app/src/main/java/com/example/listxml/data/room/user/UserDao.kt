@@ -1,0 +1,23 @@
+package com.example.listxml.data.room.user
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+
+
+@Dao
+abstract class UserDao {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertUser(user: UserEntity)
+
+    @Update
+    abstract fun updateUser(user: UserEntity)
+
+    @Query("SELECT * FROM `user_table` WHERE email = :email")
+    abstract fun getUserByName(email: String): UserEntity
+
+
+}
