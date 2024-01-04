@@ -9,9 +9,9 @@ import androidx.lifecycle.lifecycleScope
 import com.example.listxml.data.room.UserViewModel
 import com.example.listxml.databinding.ActivityLoginScreenBinding
 import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 
 @AndroidEntryPoint
 class LoginScreen : AppCompatActivity() {

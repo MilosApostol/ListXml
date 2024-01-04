@@ -1,8 +1,9 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.dagger.hilt.android")
     kotlin("kapt")
-
+    id("kotlin-parcelize")
 }
 
 android {
@@ -46,6 +47,7 @@ kapt {
 dependencies {
     val room_version = "2.6.1"
     val lifecycle_version = "2.6.2"
+    implementation ("androidx.work:work-runtime:2.7.1")
 
     implementation ("com.google.android.material:material:1.11.0")
     implementation("androidx.core:core-ktx:1.12.0")
@@ -79,13 +81,23 @@ dependencies {
     implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
     implementation("androidx.core:core-splashscreen:1.0.1")
 
-    //hilt
-
     // Hilt
     kapt("com.google.dagger:hilt-android-compiler:2.48")
     implementation("com.google.dagger:hilt-android:2.48")
     implementation("androidx.hilt:hilt-work:1.1.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
+
+    //Paging
+
+    implementation("androidx.paging:paging-runtime-ktx:3.2.1")
+    implementation("androidx.paging:paging-compose-android:3.3.0-alpha02")
+
+
+    //retrofit
+
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.3")
 
 
 }

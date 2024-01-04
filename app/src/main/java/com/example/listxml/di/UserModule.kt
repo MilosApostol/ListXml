@@ -7,11 +7,12 @@ import com.example.listxml.data.room.user.UserRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 
 @Module
-@InstallIn(Singleton::class)
+@InstallIn(SingletonComponent::class)
 class UserModule {
 
     @Provides
