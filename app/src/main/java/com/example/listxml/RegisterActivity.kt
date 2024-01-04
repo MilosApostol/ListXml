@@ -34,7 +34,7 @@ class RegisterActivity : AppCompatActivity() {
             if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
                 val user = UserEntity(userName = name, email = email, password = password)
                 userViewModel.insertUser(user)
-                Toast.makeText(this@RegisterActivity, "Fill all of the fields",
+                Toast.makeText(this@RegisterActivity, "added",
                     Toast.LENGTH_LONG)
                     .show()
             } else {

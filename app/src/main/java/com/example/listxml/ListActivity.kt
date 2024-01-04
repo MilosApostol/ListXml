@@ -9,20 +9,21 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.listxml.data.room.UserViewModel
 import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.data.room.list.ListViewModel
 import com.example.listxml.databinding.ActivityListBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
     private lateinit var binding: ActivityListBinding
-    private lateinit var adapter: ListAdapter
-    private lateinit var recyclerView: RecyclerView
     private val listViewModel: ListViewModel by viewModels()
-    lateinit var viewModelFactory: ViewModelProvider.Factory
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,18 +34,49 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
         setSupportActionBar(binding.toolbarList)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Lists"
-        val backPressedCallback = object : OnBackPressedCallback(true){
+        val backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 onBackPressedDispatcher.onBackPressed()
             }
         }
 
-        val viewModel = ViewModelProvider(this, viewModelFactory).get(ListViewModel::class.java)
-        viewModel.getAllLists.observe(this) { lists ->
-            adapter.updateItems(lists) // Update the adapter with the latest lists
+        lifecycleScope.launch {
+            listViewModel.getAllLists()
+                .distinctUntilChanged()
+                .collect { list ->
+                    val shoppingList = ArrayList(list)
+                    setupListToRecyclerView(shoppingList)
+                }
         }
+    }
 
-        val adapter = ListAdapter(listItems, ::onListItemClick, this)
+    private fun setupListToRecyclerView(list: List<ListEntity>) {
+        if (list.isNotEmpty()) {
+            var id = ""
+            binding.rvList.visibility = View.VISIBLE
+            binding.textViewEmpty.visibility = View.GONE
+            binding.rvList.layoutManager = LinearLayoutManager(this)
+            for (item in list) {
+                id = item.id
+            }
+            val adapter = ListAdapter(list, this@ListActivity, id)
+            binding.rvList.adapter = adapter
+
+        } else {
+            binding.rvList.visibility = View.GONE
+            binding.textViewEmpty.visibility = View.VISIBLE
+        }
+    }
+
+    override fun onListItemCLick(listName: ListEntity, listId: String) {
+        Toast.makeText(this@ListActivity, "list click ", Toast.LENGTH_LONG).show()
+    }
+
+    override fun onItemClick(listName: ListEntity, listId: String) {
+        Toast.makeText(this@ListActivity, "Item clic", Toast.LENGTH_LONG).show()
+    }
+
+    override fun onItemMoreClick(listName: ListEntity, listId: String) {
 
     }
 
@@ -55,19 +87,16 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
                 when (menuItem.itemId) {
                     R.id.action_delete -> {
                         Toast.makeText(this@ListActivity, "this", Toast.LENGTH_LONG).show()
-                     //   deleteItem(item) // Example function
+                        //   deleteItem(item) // Example function
                     }
+
                     R.id.action_rename -> {
                         // Perform rename action using the clicked item
-                     //   renameItem(item) // Example function
+                        //   renameItem(item) // Example function
                     }
                 }
                 true
             }
         }.show()
-        }
-
-    override fun onListItemCLick(listName: ListEntity, listId: String) {
-        TODO("Not yet implemented")
     }
 }

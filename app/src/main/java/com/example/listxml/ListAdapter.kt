@@ -13,21 +13,25 @@ class ListAdapter(
     private var itemClickListener: ListItemClickListener, private var listId: String
 ) : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
 
-    inner class ViewHolder(private val binding: ItemRvBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(private val binding: ItemRvBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         fun bind(
             item: ListEntity
         ) {
             binding.textName.text = item.name
             binding.itemMore.setImageResource(R.drawable.ic_dots)
 
-            binding.textName.setOnClickListener {  }
-            binding.itemMore.setOnClickListener {  }
+            binding.textName.setOnClickListener {
+                itemClickListener.onItemClick(item, listId)
+            }
+            binding.itemMore.setOnClickListener {
+                itemClickListener.onItemMoreClick(item, listId)
+            }
 
             binding.root.setOnClickListener {
                 itemClickListener.onListItemCLick(item, listId)
             }
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -47,6 +51,8 @@ class ListAdapter(
 
     interface ListItemClickListener {
         fun onListItemCLick(listName: ListEntity, listId: String)
+        fun onItemClick(listName: ListEntity, listId: String)
+        fun onItemMoreClick(listName: ListEntity, listId: String)
     }
 
 }

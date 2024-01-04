@@ -10,4 +10,6 @@
     <string name="register">Register</string>
     <string name="action_delete"> Delete </string>
     <string name="action_rename"> Rename</string>
+    <string name="empty_list">Empty list</string>
+    <string name="list">list name\n</string>
 </resources>
