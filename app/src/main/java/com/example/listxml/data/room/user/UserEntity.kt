@@ -6,11 +6,11 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "user_table")
 class UserEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey(autoGenerate = false)
+    var id: String = "",
     val userName: String = "",
     val email: String = "",
     val password: String = "",
-    val userLoggedIn: Boolean = false
+    var userLoggedIn: Boolean = false
 ) {
 }

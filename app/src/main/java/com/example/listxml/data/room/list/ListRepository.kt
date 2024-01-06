@@ -8,6 +8,9 @@ class ListRepository @Inject constructor(val dao: ListDao) {
     fun insertLists(listEntity: ListEntity){
         dao.insertList(listEntity)
     }
+    fun getUsersListById(userId: String): Flow<List<ListEntity>> {
+        return dao.getListsByUserId(userId)
+    }
 
     fun deleteList(listEntity: ListEntity){
         dao.deleteList(listEntity)
@@ -17,10 +20,9 @@ class ListRepository @Inject constructor(val dao: ListDao) {
         dao.updateList(listEntity)
     }
 
-    fun getListById(id: String): Flow<List<ListEntity>> {
+    fun getListById(id: String): Flow<ListEntity> {
         return dao.getListById(id)
     }
-
     fun getListsByUserId(userId: String): Flow<List<ListEntity>> {
         return dao.getListsByUserId(userId)
     }

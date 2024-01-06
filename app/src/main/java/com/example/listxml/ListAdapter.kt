@@ -27,10 +27,6 @@ class ListAdapter(
             binding.itemMore.setOnClickListener {
                 itemClickListener.onItemMoreClick(item, listId)
             }
-
-            binding.root.setOnClickListener {
-                itemClickListener.onListItemCLick(item, listId)
-            }
         }
     }
 
@@ -50,7 +46,6 @@ class ListAdapter(
     }
 
     interface ListItemClickListener {
-        fun onListItemCLick(listName: ListEntity, listId: String)
         fun onItemClick(listName: ListEntity, listId: String)
         fun onItemMoreClick(listName: ListEntity, listId: String)
     }

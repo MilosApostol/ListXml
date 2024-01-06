@@ -3,6 +3,7 @@ package com.example.listxml.di
 import android.content.Context
 import androidx.room.Room
 import com.example.listxml.data.room.AppDatabase
+import com.example.listxml.session.UserSessionManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,5 +23,9 @@ class AppModule {
             appContext, AppDatabase::class.java, AppDatabase.DATABASE
         ).fallbackToDestructiveMigration().build()
     }
+
+    @Singleton
+    @Provides
+    fun providesUserSession(): UserSessionManager = UserSessionManager()
 
 }

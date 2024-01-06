@@ -4,6 +4,7 @@ import com.example.listxml.data.room.AppDatabase
 import com.example.listxml.data.room.UserViewModel
 import com.example.listxml.data.room.user.UserDao
 import com.example.listxml.data.room.user.UserRepository
+import com.example.listxml.session.UserSessionManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,5 +27,6 @@ class UserModule {
 
     @Provides
     @Singleton
-    fun providesUserViewModel(repository: UserRepository) = UserViewModel(repository)
+    fun providesUserViewModel(repository: UserRepository, sessionManager: UserSessionManager) =
+        UserViewModel(repository, sessionManager)
 }

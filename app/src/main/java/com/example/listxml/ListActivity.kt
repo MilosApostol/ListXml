@@ -1,5 +1,6 @@
 package com.example.listxml
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -17,6 +18,7 @@ import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.data.room.list.ListViewModel
 import com.example.listxml.databinding.ActivityListBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -32,22 +34,37 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
         val view = binding.root
         setContentView(view)
         setSupportActionBar(binding.toolbarList)
+
+        lifecycleScope.launch {
+            listViewModel.getListsByUserId().collect {
+                val shoppingList = ArrayList(it)
+                setupListToRecyclerView(shoppingList)
+            }
+        }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.title = "Lists"
         val backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 onBackPressedDispatcher.onBackPressed()
             }
         }
+        binding.toolbarList.setNavigationOnClickListener{
+            binding.drawerLayout.open()
 
-        lifecycleScope.launch {
-            listViewModel.getAllLists()
-                .distinctUntilChanged()
-                .collect { list ->
-                    val shoppingList = ArrayList(list)
-                    setupListToRecyclerView(shoppingList)
-                }
         }
+
+        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
+            // Handle menu item selected
+            menuItem.isChecked = true
+            binding.drawerLayout.close()
+            true
+        }
+        binding.fabAdd.setOnClickListener {
+            val intent = Intent(this, AddList::class.java)
+            startActivity(intent)
+        }
+        onBackPressedDispatcher.addCallback(this, backPressedCallback)
     }
 
     private fun setupListToRecyclerView(list: List<ListEntity>) {
@@ -68,12 +85,10 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
         }
     }
 
-    override fun onListItemCLick(listName: ListEntity, listId: String) {
-        Toast.makeText(this@ListActivity, "list click ", Toast.LENGTH_LONG).show()
-    }
-
     override fun onItemClick(listName: ListEntity, listId: String) {
-        Toast.makeText(this@ListActivity, "Item clic", Toast.LENGTH_LONG).show()
+        val intent = Intent(this, AddList::class.java)
+        intent.putExtra("listId", listId)
+        startActivity(intent)
     }
 
     override fun onItemMoreClick(listName: ListEntity, listId: String) {

@@ -10,7 +10,7 @@ import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.data.room.user.UserDao
 import com.example.listxml.data.room.user.UserEntity
 
-@Database(entities = [UserEntity::class, ListEntity::class], version = 1, exportSchema = false)
+@Database(entities = [UserEntity::class, ListEntity::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao

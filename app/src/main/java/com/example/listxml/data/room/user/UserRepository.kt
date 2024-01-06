@@ -1,5 +1,7 @@
 package com.example.listxml.data.room.user
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(private val dao: UserDao) {
@@ -15,4 +17,11 @@ class UserRepository @Inject constructor(private val dao: UserDao) {
     fun getUserByEmail(email: String): UserEntity{
         return dao.getUserByName(email)
     }
+
+    suspend fun getUserByLoggedInStatus(): UserEntity? {
+        return withContext(Dispatchers.IO) {
+            dao.getUserByLoggedInStatus(true)
+        }
+    }
+
 }

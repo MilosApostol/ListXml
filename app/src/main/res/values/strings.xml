@@ -12,4 +12,6 @@
     <string name="action_rename"> Rename</string>
     <string name="empty_list">Empty list</string>
     <string name="list">list name\n</string>
+    <string name="listxml">ListXml</string>
+    <string name="litle_text_below">litle text below</string>
 </resources>

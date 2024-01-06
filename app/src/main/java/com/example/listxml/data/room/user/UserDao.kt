@@ -19,5 +19,6 @@ abstract class UserDao {
     @Query("SELECT * FROM `user_table` WHERE email = :email")
     abstract fun getUserByName(email: String): UserEntity
 
-
+    @Query("SELECT * FROM user_table WHERE userLoggedIn = :isLoggedIn LIMIT 1")
+    abstract fun getUserByLoggedInStatus(isLoggedIn: Boolean): UserEntity?
 }
