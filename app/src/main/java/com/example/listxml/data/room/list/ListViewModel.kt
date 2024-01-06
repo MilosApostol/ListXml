@@ -1,5 +1,7 @@
 package com.example.listxml.data.room.list
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.listxml.data.room.user.UserEntity
@@ -14,6 +16,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
@@ -23,47 +26,78 @@ class ListViewModel @Inject constructor(
     private val userSessionManager: UserSessionManager
 ) : ViewModel() {
 
+    private val _lists = MutableLiveData<List<ListEntity>>(emptyList())
+    val lists: LiveData<List<ListEntity>> = _lists
 
-    fun getAllLists(): Flow<List<ListEntity>> {
+    private val _listUpdate = MutableLiveData<ListEntity>()
+    val listUpdate: LiveData<ListEntity> = _listUpdate
+
+
+
+    fun getAllLists(): LiveData<List<ListEntity>> {
         return repository.getAllLists()
-            .flowOn(Dispatchers.IO)
 
     }
 
-    fun getListsByUserId(): Flow<List<ListEntity>> {
-        return userSessionManager.getUser()?.id?.let { repository.getUsersListById(it) }
-            ?: emptyFlow()
+    fun getListsByUserId() = viewModelScope.launch {
+        val userId = userSessionManager.getUser()?.id ?: return@launch
+        val lists = withContext(Dispatchers.IO) {
+            repository.getUsersListById(userId)
+        }
+        _lists.value = lists
     }
 
-    fun getListById(listId: String): Flow<ListEntity> {
-        return repository.getListById(listId)
+    //update
+    fun getListById(listId: String) = viewModelScope.launch(Dispatchers.IO) {
+        val fetchedList = repository.getListById(listId)
+        _listUpdate.postValue(fetchedList)
+
     }
 
-    fun getUser(): UserEntity? {
-        return userSessionManager.getUser()
-    }
-
-    fun insertLists(listEntity: ListEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.insertLists(listEntity)
+    fun updateList(list: ListEntity) {
+        list.listCreatorId = userSessionManager.getUserId()
+        viewModelScope.launch {
+            repository.updateList(list)
+            _listUpdate.postValue(list)
         }
     }
 
-    fun updateLists(listEntity: ListEntity) {
+        fun getUser(): UserEntity {
+            return userSessionManager.getUser()
+        }
+
+        fun insertLists(listEntity: ListEntity) {
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.insertLists(listEntity)
+            }
+        }
+
+        fun updateList(listId: String, newName: String) = viewModelScope.launch {
+            val updatedList = lists.value!!.find { it.id == listId }
+            if (updatedList != null) {
+                val newList = updatedList.copy(name = newName)
+                _lists.value = lists.value!!.toMutableList().apply {
+                    removeIf { it.id == listId }
+                    add(newList)
+                }
+                repository.updateList(newList)
+            }
+        }
+
+    fun removeList(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.updateList(listEntity)
+            val list = repository.getListById(id)
+            repository.deleteList(list)
+
+            withContext(Dispatchers.Main) {
+                _lists.value = lists.value
+            }
         }
     }
 
-    fun removeList(listEntity: ListEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteList(listEntity)
+        fun removeAll() {
+            viewModelScope.launch(Dispatchers.IO) {
+                repository.deleteAll()
+            }
         }
     }
-
-    fun removeAll() {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteAll()
-        }
-    }
-}

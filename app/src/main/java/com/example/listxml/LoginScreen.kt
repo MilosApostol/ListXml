@@ -5,12 +5,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.lifecycleScope
 import com.example.listxml.data.room.UserViewModel
 import com.example.listxml.data.room.user.UserEntity
 import com.example.listxml.databinding.ActivityLoginScreenBinding
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,20 +20,21 @@ import javax.inject.Inject
 class LoginScreen : AppCompatActivity() {
 
     private val userViewModel: UserViewModel by viewModels()
-
+    private var isUserLogged = false
     private lateinit var binding: ActivityLoginScreenBinding
-    private lateinit var user: UserEntity
+    private var user: UserEntity? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginScreenBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-        lifecycleScope.launch {
-            user = userViewModel.getLoggedUser()
-        }
-        if (user != null) {
-            val intent = Intent(this, ListActivity::class.java)
-        } else {
+        userViewModel.checkConditions()
+        userViewModel.shouldNavigate.observe(this) {
+            if (it) {
+                val intent = Intent(this, ListActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
             binding.buttonLogin.setOnClickListener {
                 val email = binding.textViewEmailLogin.text.toString()
                 val password = binding.textViewPasswordLogin.text.toString()

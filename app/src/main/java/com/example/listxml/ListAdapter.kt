@@ -10,7 +10,8 @@ import com.example.listxml.databinding.ItemRvBinding
 
 class ListAdapter(
     val items: List<ListEntity>,
-    private var itemClickListener: ListItemClickListener, private var listId: String
+    private var itemClickListener: ListItemClickListener,
+    private var listIds: List<String>
 ) : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
 
     inner class ViewHolder(private val binding: ItemRvBinding) :
@@ -22,10 +23,14 @@ class ListAdapter(
             binding.itemMore.setImageResource(R.drawable.ic_dots)
 
             binding.textName.setOnClickListener {
-                itemClickListener.onItemClick(item, listId)
+                itemClickListener.onItemClick(item, listIds[bindingAdapterPosition])
             }
             binding.itemMore.setOnClickListener {
-                itemClickListener.onItemMoreClick(item, listId)
+                itemClickListener.onItemMoreClick(item, listIds[bindingAdapterPosition])
+            }
+
+            binding.root.setOnClickListener {
+                itemClickListener.onListItemCLick(item, listIds[bindingAdapterPosition])
             }
         }
     }
@@ -46,6 +51,7 @@ class ListAdapter(
     }
 
     interface ListItemClickListener {
+        fun onListItemCLick(listName: ListEntity, listId: String)
         fun onItemClick(listName: ListEntity, listId: String)
         fun onItemMoreClick(listName: ListEntity, listId: String)
     }

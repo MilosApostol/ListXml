@@ -14,4 +14,8 @@
     <string name="list">list name\n</string>
     <string name="listxml">ListXml</string>
     <string name="litle_text_below">litle text below</string>
+    <string name="insert_list_name">Insert list name</string>
+    <string name="userid">userId</string>
+    <string name="listid">listId</string>
+    <string name="logout">Logout</string>
 </resources>

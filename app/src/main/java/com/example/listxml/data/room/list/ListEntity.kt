@@ -6,11 +6,11 @@ import androidx.room.PrimaryKey
 
 
 @Entity(tableName = "list_table")
-class ListEntity(
+data class ListEntity(
     @PrimaryKey(autoGenerate = false)
-    val id: String = "",
+    var id: String = "",
     @ColumnInfo(name = "listName")
-    val name: String = "",
+    var name: String = "",
     @ColumnInfo(name = "userId")
-    val listCreatorId: String = "",
+    var listCreatorId: String = "",
 )

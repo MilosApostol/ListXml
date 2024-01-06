@@ -38,6 +38,7 @@ class RegisterActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     if (userViewModel.getUserByEmail(email)) {
                         val user = UserEntity(
+                            id = UUID.randomUUID().toString(),
                             userName = name,
                             email = email,
                             password = password,

@@ -36,7 +36,7 @@
                 android:id="@+id/text_input_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/list"
+                android:hint="@string/insert_list_name"
                 app:boxBackgroundMode="filled">
 
                 <com.google.android.material.textfield.TextInputEditText
