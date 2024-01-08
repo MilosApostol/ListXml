@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".ListXmlApp"
         android:allowBackup="true"
@@ -14,16 +16,16 @@
         android:theme="@style/Theme.ListXml"
         tools:targetApi="31">
         <activity
-            android:name=".AddList"
+            android:name=".activity.AddList"
             android:exported="false" />
         <activity
-            android:name=".ListActivity"
+            android:name=".activity.ListActivity"
             android:exported="false" />
         <activity
-            android:name=".RegisterActivity"
+            android:name=".activity.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginScreen"
+            android:name=".activity.LoginScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,7 +34,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="false"></activity>
     </application>
 

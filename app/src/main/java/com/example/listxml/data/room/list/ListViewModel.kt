@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.listxml.ListAdapter
 import com.example.listxml.data.room.user.UserEntity
 import com.example.listxml.session.UserSessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -90,10 +91,11 @@ class ListViewModel @Inject constructor(
             repository.deleteList(list)
 
             withContext(Dispatchers.Main) {
-                _lists.value = lists.value
+                _lists.value = lists.value?.filter { it.id != id }
             }
         }
     }
+
 
         fun removeAll() {
             viewModelScope.launch(Dispatchers.IO) {

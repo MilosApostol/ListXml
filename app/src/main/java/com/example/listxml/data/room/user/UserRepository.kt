@@ -18,6 +18,10 @@ class UserRepository @Inject constructor(private val dao: UserDao) {
         return dao.getUserByName(email)
     }
 
+    fun userExist(email: String): Boolean{
+        return dao.userExists(email)
+    }
+
     suspend fun getUserByLoggedInStatus(): UserEntity? {
         return withContext(Dispatchers.IO) {
             dao.getUserByLoggedInStatus(true)

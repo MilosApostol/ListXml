@@ -1,6 +1,5 @@
-package com.example.listxml
+package com.example.listxml.activity
 
-import android.R
 import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
@@ -12,11 +11,10 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.PopupWindowCompat
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.listxml.ListAdapter
+import com.example.listxml.R
 import com.example.listxml.data.room.UserViewModel
 import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.data.room.list.ListViewModel
@@ -34,7 +32,7 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
     private val listViewModel: ListViewModel by viewModels()
     private val userViewModel: UserViewModel by viewModels()
     private var userId: String? = ""
-
+    private lateinit var listAdapter: ListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,7 +64,6 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
 
         }
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
-            // Handle menu item selected
             menuItem.isChecked = true
             binding.drawerLayout.close()
             true
@@ -80,21 +77,22 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(com.example.listxml.R.menu.toolbar_menu, menu)
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
         return true
 
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            com.example.listxml.R.id.action_logout -> {
-                lifecycleScope.launch(Dispatchers.IO){
-                    userViewModel.logOut()
+            R.id.action_logout -> {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    userViewModel.logOutOffline()
                 }
                 val intent = Intent(this, LoginScreen::class.java)
                 startActivity(intent)
                 return true
             }
+
             else -> return super.onOptionsItemSelected(item)
         }
     }
@@ -107,8 +105,8 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
 
             // Create the adapter with a list of listIds, one for each item
             val listIds = list.map { it.id }
-            val adapter = ListAdapter(list, this@ListActivity, listIds)
-            binding.rvList.adapter = adapter
+            listAdapter = ListAdapter(list, this@ListActivity, listIds)
+            binding.rvList.adapter = listAdapter
         } else {
             binding.rvList.visibility = View.GONE
             binding.textViewEmpty.visibility = View.VISIBLE
@@ -124,24 +122,25 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
 
     }
 
-    override fun onItemMoreClick(listName: ListEntity, listId: String) {
-        showPopupMenu(itemsBinding.itemMore, listId)
+    override fun onItemMoreClick(listName: ListEntity, listId: String, anchorView: View) {
+        showPopupMenu(anchorView, listId)
     }
 
     private fun showPopupMenu(anchorView: View, listId: String) {
         val popupMenu = PopupMenu(this@ListActivity, anchorView)
         popupMenu.apply {
             gravity = Gravity.BOTTOM or Gravity.START
-            menuInflater.inflate(com.example.listxml.R.menu.list_menu, menu)
+            menuInflater.inflate(R.menu.list_menu, menu)
             setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
-                    com.example.listxml.R.id.action_delete -> {
+                    R.id.action_delete -> {
                         listViewModel.removeList(listId)
                     }
-                    com.example.listxml.R.id.action_rename -> {
+
+                    R.id.action_rename -> {
                         val intent = Intent(this@ListActivity, AddList::class.java)
-                        intent.putExtra(getString(com.example.listxml.R.string.listid), listId)
-                        intent.putExtra(getString(com.example.listxml.R.string.userid), listId)
+                        intent.putExtra(getString(R.string.listid), listId)
+                        intent.putExtra(getString(R.string.userid), listId)
 
                         startActivity(intent)
                     }

@@ -1,11 +1,13 @@
-package com.example.listxml
+package com.example.listxml.activity
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
+import com.example.listxml.data.firebase.UserFireViewModel
 import com.example.listxml.data.room.UserViewModel
 import com.example.listxml.data.room.user.UserEntity
 import com.example.listxml.databinding.ActivityRegisterBinding
@@ -19,6 +21,8 @@ class RegisterActivity : AppCompatActivity() {
     private val userViewModel: UserViewModel by viewModels()
 
     private lateinit var binding: ActivityRegisterBinding
+    private val userFireViewModel: UserFireViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
@@ -34,7 +38,21 @@ class RegisterActivity : AppCompatActivity() {
             val email = binding.textViewEmail.text.toString()
             val password = binding.textViewPassword.text.toString()
 
+            binding.progressBar.visibility = View.VISIBLE
             if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+                lifecycleScope.launch {
+                    if (userFireViewModel.signIn(
+                            name = name,
+                            email = email,
+                            password = password,
+                        )
+                    ) {
+                        binding.progressBar.visibility = View.GONE
+                        val intent = Intent(this@RegisterActivity, ListActivity::class.java)
+                        startActivity(intent)
+                    }
+                    /*
+                //if offline
                 lifecycleScope.launch {
                     if (userViewModel.getUserByEmail(email)) {
                         val user = UserEntity(
@@ -44,7 +62,7 @@ class RegisterActivity : AppCompatActivity() {
                             password = password,
                             userLoggedIn = true
                         )
-                        userViewModel.insertUser(user)
+                        userViewModel.insertUserOffline(user)
                         val intent = Intent(this@RegisterActivity, ListActivity::class.java)
                         startActivity(intent)
                     } else {
@@ -63,13 +81,10 @@ class RegisterActivity : AppCompatActivity() {
                     .show()
             }
         }
+
+                 */
+                }
+            }
+        }
     }
 }
-/*
-list nepokretnosti da li je na objektu ili na parceli ima datum upisa u korist
-        IMa G list tu j
-        teret na objektu
-
-       teret na objektu i dole pise PR primljeno to i to upisano pod DN broj kroz 64 na kraju pise u korst  011 3338317 boojajna popvivc
-
- */

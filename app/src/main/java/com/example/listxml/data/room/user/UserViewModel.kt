@@ -1,8 +1,5 @@
 package com.example.listxml.data.room
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,8 +10,6 @@ import com.example.listxml.data.room.user.UserRepository
 import com.example.listxml.session.UserSessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -37,7 +32,7 @@ class UserViewModel @Inject constructor(
     private val _userId = MutableLiveData<String?>(null)
     val userId: LiveData<String?> = _userId
 
-    fun insertUser(userEntity: UserEntity) {
+    fun insertUserOffline(userEntity: UserEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             userRepository.insertUser(userEntity)
             _isUserLoggedInState.value = true
@@ -55,7 +50,7 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    suspend fun getUserByEmailAndPassword(email: String, password: String): Boolean {
+    suspend fun getUserByEmailAndPasswordOffline(email: String, password: String): Boolean {
         return withContext(Dispatchers.IO) {
             val user = userRepository.getUserByEmail(email)
             if (user != null && user.password == password) {
@@ -82,7 +77,7 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    suspend fun logOut() {
+    suspend fun logOutOffline() {
         val user: UserEntity? = userRepository.getUserByLoggedInStatus()
         user?.userLoggedIn = false
         withContext(Dispatchers.Main) {
@@ -102,7 +97,7 @@ class UserViewModel @Inject constructor(
             if (isUserLoggedInState.value == true) {
                 _shouldNavigate.value = true
 
-            } else if (loggingState()) {
+            } else if (loggingStateOffline()) {
                 _shouldNavigate.value = true
             }
         }
@@ -125,7 +120,7 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loggingState(): Boolean {
+    private suspend fun loggingStateOffline(): Boolean {
         return withContext(Dispatchers.IO) {
             val loggedInUser = userRepository.getUserByLoggedInStatus()
             if (loggedInUser != null) {

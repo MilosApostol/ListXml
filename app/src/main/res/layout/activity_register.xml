@@ -4,25 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".RegisterActivity">
+    tools:context=".activity.RegisterActivity">
 
     <androidx.appcompat.widget.Toolbar
-        app:layout_constraintTop_toTopOf="parent"
         android:id="@+id/toolbar_register"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
-
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="60dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="60dp">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -34,9 +33,9 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/text_input_email"
                 android:layout_width="match_parent"
-                app:boxBackgroundMode="filled"
                 android:layout_height="wrap_content"
                 android:hint="@string/email"
+                app:boxBackgroundMode="filled"
                 app:startIconDrawable="@drawable/ic_email">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -47,7 +46,6 @@
             </com.google.android.material.textfield.TextInputLayout>
 
         </androidx.cardview.widget.CardView>
-
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -86,8 +84,8 @@
                 android:id="@+id/text_input_name"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:boxBackgroundMode="filled"
-                android:hint="@string/username">
+                android:hint="@string/username"
+                app:boxBackgroundMode="filled">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/text_view_name"
@@ -100,18 +98,28 @@
 
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_register"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:cornerRadius="24dp"
-            android:id="@+id/button_register"
+            android:layout_gravity="center"
             android:text="@string/register"
-            android:layout_gravity="center"/>
-
-
-
-
+            app:cornerRadius="24dp" />
 
 
     </LinearLayout>
+
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

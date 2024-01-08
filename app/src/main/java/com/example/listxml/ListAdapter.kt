@@ -14,6 +14,7 @@ class ListAdapter(
     private var listIds: List<String>
 ) : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
 
+    val list = ArrayList<ListEntity>(items)
     inner class ViewHolder(private val binding: ItemRvBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(
@@ -26,7 +27,7 @@ class ListAdapter(
                 itemClickListener.onItemClick(item, listIds[bindingAdapterPosition])
             }
             binding.itemMore.setOnClickListener {
-                itemClickListener.onItemMoreClick(item, listIds[bindingAdapterPosition])
+                itemClickListener.onItemMoreClick(item, listIds[bindingAdapterPosition], itemView)
             }
 
             binding.root.setOnClickListener {
@@ -53,7 +54,8 @@ class ListAdapter(
     interface ListItemClickListener {
         fun onListItemCLick(listName: ListEntity, listId: String)
         fun onItemClick(listName: ListEntity, listId: String)
-        fun onItemMoreClick(listName: ListEntity, listId: String)
+        fun onItemMoreClick(listName: ListEntity, listId: String, anchorView: View){
+        }
     }
 
 }

@@ -1,7 +1,8 @@
-package com.example.listxml
+package com.example.listxml.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.listxml.R
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

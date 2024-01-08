@@ -1,11 +1,10 @@
-package com.example.listxml
+package com.example.listxml.activity
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.data.room.list.ListViewModel
