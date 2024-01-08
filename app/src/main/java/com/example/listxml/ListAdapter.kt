@@ -7,6 +7,7 @@ import android.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.databinding.ItemRvBinding
+import com.example.listxml.databinding.ListItemRvBinding
 
 class ListAdapter(
     val items: List<ListEntity>,
@@ -14,7 +15,7 @@ class ListAdapter(
     private var listIds: List<String>
 ) : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
 
-    inner class ViewHolder(private val binding: ItemRvBinding) :
+    inner class ViewHolder(private val binding: ListItemRvBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(
             item: ListEntity
@@ -22,9 +23,6 @@ class ListAdapter(
             binding.textName.text = item.name
             binding.itemMore.setImageResource(R.drawable.ic_dots)
 
-            binding.textName.setOnClickListener {
-                itemClickListener.onItemClick(item, listIds[bindingAdapterPosition])
-            }
             binding.itemMore.setOnClickListener {
                 itemClickListener.onItemMoreClick(item, listIds[bindingAdapterPosition], itemView)
             }
@@ -37,7 +35,7 @@ class ListAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = ItemRvBinding.inflate(inflater, parent, false)
+        val binding = ListItemRvBinding.inflate(inflater, parent, false)
         return ViewHolder(binding)
     }
 
@@ -52,7 +50,6 @@ class ListAdapter(
 
     interface ListItemClickListener {
         fun onListItemCLick(listName: ListEntity, listId: String)
-        fun onItemClick(listName: ListEntity, listId: String)
         fun onItemMoreClick(listName: ListEntity, listId: String, anchorView: View){
         }
     }

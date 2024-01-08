@@ -29,14 +29,12 @@ class ListFireViewModel @Inject constructor(
 
     private val _lists = MutableLiveData<List<ListEntity>>(emptyList())
     val lists: LiveData<List<ListEntity>> = _lists
+
+    // you dont have to specify the listLiveData directly, it will be filled from repository.readdata()
+
     init {
-        viewModelScope.launch {
-            readData()
-        }
+        repository.readData()
     }
-
-
-    // you dont have to specify the listLiveData dirrecly, it will be filled from repository.readdata()
     fun insertList(
         reference: DatabaseReference,
         list: ListEntity,
@@ -46,13 +44,15 @@ class ListFireViewModel @Inject constructor(
         repository.insertList(reference, list, key, callback)
     }
 
-    suspend fun readData() {
-            val lists = withContext(Dispatchers.IO) {
-                repository.getLists()
-            }
-        _lists.value = lists.value
-    }
+    suspend fun readData(filterId: String) {
+        val lists = withContext(Dispatchers.IO) {
+            repository.getLists()
+        }
 
+        val filteredLists = lists.value?.filter { list -> list.listCreatorId == filterId }
+
+        _lists.value = filteredLists!!
+    }
     fun removeList(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val list = listRepository.getListById(id)

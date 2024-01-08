@@ -1,7 +1,8 @@
 package com.example.listxml;
 
-class ItemTouchHelperCallback(private val adapter: ConverterEditAdapter) :
-        ItemTouchHelper.Callback() {
+
+/*
+class ItemTouchHelperCallback(val adapter: ItemsAdapter):ItemTouchHelper.Callback() {
 
         override fun getMovementFlags(
         recyclerView: RecyclerView,
@@ -22,3 +23,4 @@ class ItemTouchHelperCallback(private val adapter: ConverterEditAdapter) :
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
         }
+        */

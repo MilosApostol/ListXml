@@ -23,6 +23,7 @@ import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.data.room.list.ListViewModel
 import com.example.listxml.databinding.ActivityListBinding
 import com.example.listxml.databinding.ItemRvBinding
+import com.example.listxml.databinding.ListItemRvBinding
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,7 +34,7 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
     private lateinit var binding: ActivityListBinding
-    private lateinit var itemsBinding: ItemRvBinding
+    private lateinit var itemsBinding: ListItemRvBinding
     private val listViewModel: ListViewModel by viewModels()
     private val listFireViewModel: ListFireViewModel by viewModels()
     private val userViewModel: UserViewModel by viewModels()
@@ -46,13 +47,13 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
         lifecycleScope.launch {
             userViewModel.userId.observe(this@ListActivity) { id ->
                 lifecycleScope.launch {
-                    listFireViewModel.readData()
                     userId = id
                     if (userId != Firebase.auth.currentUser?.uid.toString()){
                         userViewModel.updateRoomUserIdAfterLogin(Firebase.auth.currentUser?.email
                             .toString()) //setting a roomID == firebaseID
                     }
-                    listViewModel.getListsByUserId()
+                    //allows you once you add list not to call it everytime
+                    listFireViewModel.readData(userId ?: "")
                 }
             }
         }
@@ -61,7 +62,7 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityListBinding.inflate(layoutInflater)
-        itemsBinding = ItemRvBinding.inflate(layoutInflater)
+        itemsBinding = ListItemRvBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
         setSupportActionBar(binding.toolbarList)
@@ -87,7 +88,7 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
         }
         binding.button.setOnClickListener {
             lifecycleScope.launch {
-                listFireViewModel.readData()
+                listFireViewModel.readData(userId ?: "")
             }
         }
         binding.toolbarList.setNavigationOnClickListener {
@@ -106,13 +107,11 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
         }
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
     }
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toolbar_menu, menu)
         return true
 
     }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_logout -> {
@@ -128,7 +127,6 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
             else -> return super.onOptionsItemSelected(item)
         }
     }
-
     private fun setupListToRecyclerView(list: List<ListEntity>) {
         if (list.isNotEmpty()) {
             binding.rvList.visibility = View.VISIBLE
@@ -150,11 +148,6 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
         intent.putExtra("listId", listId)
         startActivity(intent)
     }
-
-    override fun onItemClick(listName: ListEntity, listId: String) {
-
-    }
-
     override fun onItemMoreClick(listName: ListEntity, listId: String, anchorView: View) {
         showPopupMenu(anchorView, listId)
     }
@@ -167,7 +160,6 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
             setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.action_delete -> {
-                  //      listViewModel.removeList(listId)
                       listFireViewModel.removeList(listId)
                     }
 
