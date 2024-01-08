@@ -8,6 +8,8 @@ import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.data.room.user.UserEntity
 import com.example.listxml.data.room.user.UserRepository
 import com.example.listxml.session.UserSessionManager
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -83,6 +85,7 @@ class UserViewModel @Inject constructor(
         withContext(Dispatchers.Main) {
             _isUserLoggedInState.value = false
         }
+        Firebase.auth.signOut()
         if (user != null) {
             userRepository.updateUser(user)
             userSessionManager.apply {
@@ -110,14 +113,18 @@ class UserViewModel @Inject constructor(
     fun getUser() = viewModelScope.launch {
         withContext(Dispatchers.IO) {
             val user = userRepository.getUserByLoggedInStatus()
-            val userId = user?.id
-            userSessionManager.setUserId(userId ?: "")
-            userSessionManager.currentUser = user
-            userSessionManager.isUserLoggedIn.value = true
-            withContext(Dispatchers.Main) {
-                _userId.value = userId
+            if (user != null) {
+                userSessionManager.currentUser = user
+                userSessionManager.isUserLoggedIn.value = true
+                withContext(Dispatchers.Main) {
+                    _userId.value = user.id
+                }
             }
         }
+    }
+
+    suspend fun updateRoomUserIdAfterLogin(email: String): Boolean {
+        return userRepository.updateRoomUserIdAfterLogin(email)
     }
 
     private suspend fun loggingStateOffline(): Boolean {

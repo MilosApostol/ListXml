@@ -23,4 +23,7 @@ abstract class UserDao {
     abstract fun userExists(email: String): Boolean
     @Query("SELECT * FROM user_table WHERE userLoggedIn = :isLoggedIn LIMIT 1")
     abstract fun getUserByLoggedInStatus(isLoggedIn: Boolean): UserEntity?
+
+    @Query("UPDATE user_table SET id = :newUserId WHERE id = :oldUserId")
+    abstract fun updateUserId(oldUserId: String, newUserId: String)
 }

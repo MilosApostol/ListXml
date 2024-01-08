@@ -14,7 +14,6 @@ class ListAdapter(
     private var listIds: List<String>
 ) : RecyclerView.Adapter<ListAdapter.ViewHolder>() {
 
-    val list = ArrayList<ListEntity>(items)
     inner class ViewHolder(private val binding: ItemRvBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(

@@ -104,6 +104,12 @@ dependencies {
     //firebase
 
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
-
+    implementation("com.google.firebase:firebase-database-ktx:20.3.0")
+    implementation("com.google.firebase:firebase-storage-ktx:20.3.0")
+    implementation("com.google.firebase:firebase-firestore:24.10.0")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.10.0")
+    implementation("com.google.firebase:firebase-storage:20.3.0")
+    implementation("com.google.firebase:firebase-database:20.3.0")
+    implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9")
 
 }

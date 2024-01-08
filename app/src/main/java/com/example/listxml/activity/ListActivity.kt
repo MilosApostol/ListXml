@@ -2,6 +2,7 @@ package com.example.listxml.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
@@ -11,15 +12,19 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.listxml.ListAdapter
 import com.example.listxml.R
+import com.example.listxml.data.firebase.list.ListFireViewModel
 import com.example.listxml.data.room.UserViewModel
 import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.data.room.list.ListViewModel
 import com.example.listxml.databinding.ActivityListBinding
 import com.example.listxml.databinding.ItemRvBinding
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,9 +35,28 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
     private lateinit var binding: ActivityListBinding
     private lateinit var itemsBinding: ItemRvBinding
     private val listViewModel: ListViewModel by viewModels()
+    private val listFireViewModel: ListFireViewModel by viewModels()
     private val userViewModel: UserViewModel by viewModels()
     private var userId: String? = ""
     private lateinit var listAdapter: ListAdapter
+
+    override fun onStart() {
+        super.onStart()
+        userViewModel.getUser()
+        lifecycleScope.launch {
+            userViewModel.userId.observe(this@ListActivity) { id ->
+                lifecycleScope.launch {
+                    listFireViewModel.readData()
+                    userId = id
+                    if (userId != Firebase.auth.currentUser?.uid.toString()){
+                        userViewModel.updateRoomUserIdAfterLogin(Firebase.auth.currentUser?.email
+                            .toString()) //setting a roomID == firebaseID
+                    }
+                    listViewModel.getListsByUserId()
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,15 +74,22 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
                 onBackPressedDispatcher.onBackPressed()
             }
         }
-        userViewModel.getUser()
-        listViewModel.getListsByUserId()
+/*
+        //if offline
         listViewModel.lists.observe(this@ListActivity) {
             setupListToRecyclerView(it)
         }
-        userViewModel.userId.observe(this@ListActivity) { id ->
-            userId = id
-        }
 
+
+ */
+        listFireViewModel.lists.observe(this@ListActivity){
+            setupListToRecyclerView(it)
+        }
+        binding.button.setOnClickListener {
+            lifecycleScope.launch {
+                listFireViewModel.readData()
+            }
+        }
         binding.toolbarList.setNavigationOnClickListener {
             binding.drawerLayout.open()
 
@@ -87,6 +118,7 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
             R.id.action_logout -> {
                 lifecycleScope.launch(Dispatchers.IO) {
                     userViewModel.logOutOffline()
+
                 }
                 val intent = Intent(this, LoginScreen::class.java)
                 startActivity(intent)
@@ -114,11 +146,12 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
     }
 
     override fun onListItemCLick(listName: ListEntity, listId: String) {
-        Toast.makeText(this@ListActivity, "diffrence is this $listId", Toast.LENGTH_LONG).show()
+        val intent = Intent(this, ItemsActivity::class.java)
+        intent.putExtra("listId", listId)
+        startActivity(intent)
     }
 
     override fun onItemClick(listName: ListEntity, listId: String) {
-        Toast.makeText(this@ListActivity, listId, Toast.LENGTH_LONG).show()
 
     }
 
@@ -134,7 +167,8 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
             setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.action_delete -> {
-                        listViewModel.removeList(listId)
+                  //      listViewModel.removeList(listId)
+                      listFireViewModel.removeList(listId)
                     }
 
                     R.id.action_rename -> {

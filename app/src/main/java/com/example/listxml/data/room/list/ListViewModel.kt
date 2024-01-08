@@ -34,14 +34,8 @@ class ListViewModel @Inject constructor(
     val listUpdate: LiveData<ListEntity> = _listUpdate
 
 
-
-    fun getAllLists(): LiveData<List<ListEntity>> {
-        return repository.getAllLists()
-
-    }
-
     fun getListsByUserId() = viewModelScope.launch {
-        val userId = userSessionManager.getUser()?.id ?: return@launch
+        val userId = userSessionManager.getUser().id
         val lists = withContext(Dispatchers.IO) {
             repository.getUsersListById(userId)
         }
@@ -63,27 +57,27 @@ class ListViewModel @Inject constructor(
         }
     }
 
-        fun getUser(): UserEntity {
-            return userSessionManager.getUser()
-        }
+    fun getUser(): UserEntity {
+        return userSessionManager.getUser()
+    }
 
-        fun insertLists(listEntity: ListEntity) {
-            viewModelScope.launch(Dispatchers.IO) {
-                repository.insertLists(listEntity)
-            }
+    fun insertLists(listEntity: ListEntity) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertLists(listEntity)
         }
+    }
 
-        fun updateList(listId: String, newName: String) = viewModelScope.launch {
-            val updatedList = lists.value!!.find { it.id == listId }
-            if (updatedList != null) {
-                val newList = updatedList.copy(name = newName)
-                _lists.value = lists.value!!.toMutableList().apply {
-                    removeIf { it.id == listId }
-                    add(newList)
-                }
-                repository.updateList(newList)
+    fun updateList(listId: String, newName: String) = viewModelScope.launch {
+        val updatedList = lists.value!!.find { it.id == listId }
+        if (updatedList != null) {
+            val newList = updatedList.copy(name = newName)
+            _lists.value = lists.value!!.toMutableList().apply {
+                removeIf { it.id == listId }
+                add(newList)
             }
+            repository.updateList(newList)
         }
+    }
 
     fun removeList(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -97,9 +91,9 @@ class ListViewModel @Inject constructor(
     }
 
 
-        fun removeAll() {
-            viewModelScope.launch(Dispatchers.IO) {
-                repository.deleteAll()
-            }
+    fun removeAll() {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.deleteAll()
         }
     }
+}

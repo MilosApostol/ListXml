@@ -1,7 +1,7 @@
 package com.example.listxml.di
 
-import com.example.listxml.data.firebase.UserFireViewModel
-import com.example.listxml.data.firebase.UserRepFirebase
+import com.example.listxml.data.firebase.user.UserFireViewModel
+import com.example.listxml.data.firebase.user.UserRepFirebase
 import com.example.listxml.data.room.user.UserRepository
 import com.example.listxml.session.UserSessionManager
 import com.google.firebase.Firebase
@@ -11,6 +11,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
 import javax.inject.Singleton
 
 @Module
@@ -30,4 +31,5 @@ class Firebase {
         auth: FirebaseAuth
     ) =
         UserFireViewModel(repository, userRepository, userSessionManager, auth)
+
 }

@@ -1,4 +1,4 @@
-package com.example.listxml.data.firebase
+package com.example.listxml.data.firebase.user
 
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CompletableDeferred

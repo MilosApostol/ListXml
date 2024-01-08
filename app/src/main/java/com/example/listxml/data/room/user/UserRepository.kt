@@ -1,5 +1,6 @@
 package com.example.listxml.data.room.user
 
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -28,4 +29,20 @@ class UserRepository @Inject constructor(private val dao: UserDao) {
         }
     }
 
+    suspend fun updateRoomUserIdAfterLogin(username: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val firebaseUserId = FirebaseAuth.getInstance().currentUser!!.uid
+                val existingUser = dao.getUserByName(username)
+
+                dao.updateUserId(existingUser.id, firebaseUserId)
+                true
+            } catch (e: Exception) {
+                false
+            }
+        }
+
+    }
 }
+
+

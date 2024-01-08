@@ -1,9 +1,8 @@
-package com.example.listxml.data.firebase
+package com.example.listxml.data.firebase.user
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.listxml.data.room.user.UserEntity
 import com.example.listxml.data.room.user.UserRepository
 import com.example.listxml.session.UserSessionManager
@@ -12,7 +11,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject

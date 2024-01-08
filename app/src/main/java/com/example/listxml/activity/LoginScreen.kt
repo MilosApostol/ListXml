@@ -3,11 +3,9 @@ package com.example.listxml.activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.example.listxml.data.firebase.UserFireViewModel
-import com.example.listxml.data.firebase.UserRepFirebase
+import com.example.listxml.data.firebase.user.UserFireViewModel
 import com.example.listxml.data.room.UserViewModel
 import com.example.listxml.data.room.user.UserEntity
 import com.example.listxml.databinding.ActivityLoginScreenBinding
