@@ -13,6 +13,8 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.listxml.ListAdapter
@@ -41,23 +43,6 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
     private var userId: String? = ""
     private lateinit var listAdapter: ListAdapter
 
-    override fun onStart() {
-        super.onStart()
-        userViewModel.getUser()
-        lifecycleScope.launch {
-            userViewModel.userId.observe(this@ListActivity) { id ->
-                lifecycleScope.launch {
-                    userId = id
-                    if (userId != Firebase.auth.currentUser?.uid.toString()){
-                        userViewModel.updateRoomUserIdAfterLogin(Firebase.auth.currentUser?.email
-                            .toString()) //setting a roomID == firebaseID
-                    }
-                    //allows you once you add list not to call it everytime
-                    listFireViewModel.readData(userId ?: "")
-                }
-            }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +68,10 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
 
 
  */
+        userViewModel.userId.observe(this@ListActivity) { id ->
+            listFireViewModel.readData(id ?: "")
+        }
+
         listFireViewModel.lists.observe(this@ListActivity){
             setupListToRecyclerView(it)
         }

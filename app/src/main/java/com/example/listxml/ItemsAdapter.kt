@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.listxml.data.room.item.ItemsEntity
 import com.example.listxml.databinding.ItemRvBinding
+import java.util.Collections
 
 class ItemsAdapter(
     val items: List<ItemsEntity>,
@@ -36,6 +37,10 @@ class ItemsAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         holder.bind(item)
+    }
+    fun swapItems(fromPosition: Int, toPosition: Int) {
+        Collections.swap(items, fromPosition, toPosition)
+        notifyItemMoved(fromPosition, toPosition)
     }
 
     interface ItemClickListener {

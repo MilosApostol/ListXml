@@ -23,8 +23,7 @@ class UserFireViewModel @Inject constructor(
     val auth: FirebaseAuth
 ) : ViewModel() {
 
-    private val _isUserLoggedInState = MutableLiveData(false)
-    val isUserLoggedInState: LiveData<Boolean> = _isUserLoggedInState
+    private val isUserLoggedInState = MutableLiveData(false)
 
     suspend fun logIn(email: String, password: String): Boolean {
         return withContext(Dispatchers.Main) {
@@ -33,7 +32,7 @@ class UserFireViewModel @Inject constructor(
                 if (user.password == password) {
                     userSessionManager.currentUser = user
                     userRepository.updateUser(user.copy(userLoggedIn = true))
-                    _isUserLoggedInState.value = true
+                    isUserLoggedInState.value = true
                     return@withContext repository.logIn(email, password)
                 } else {
                     return@withContext false
@@ -57,7 +56,7 @@ class UserFireViewModel @Inject constructor(
                         userLoggedIn = true,
                     )
                     withContext(Dispatchers.Main) {
-                        _isUserLoggedInState.value = true
+                        isUserLoggedInState.value = true
                         Firebase.auth.currentUser?.uid?.let { userSessionManager.setUserId(it) }
                         userSessionManager.currentUser = newUser
                     }

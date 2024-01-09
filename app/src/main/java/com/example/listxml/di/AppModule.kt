@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.listxml.data.room.AppDatabase
 import com.example.listxml.session.UserSessionManager
+import com.example.listxml.utill.ContextProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,4 +34,8 @@ class AppModule {
     @Provides
     fun provideExternalScope(): CoroutineScope = CoroutineScope(SupervisorJob())
 
+    @Singleton
+    @Provides
+    fun providesContextProvider(@ApplicationContext appContext: Context) =
+        ContextProvider(appContext)
 }

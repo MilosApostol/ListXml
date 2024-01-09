@@ -29,14 +29,8 @@ class ListFireRepository @Inject constructor(
 
     private var job: Job? = null
 
-    private val _listLiveData = MutableLiveData<List<ListEntity>>(emptyList()) // Initialize with empty list
-    val listLiveData: LiveData<List<ListEntity>> get() = _listLiveData
-
     private val reference = FirebaseDatabase.getInstance().getReference(Constants.Lists)
 
-    init {
-        readData()
-    }
     fun insertList(
         reference: DatabaseReference,
         list: ListEntity,
@@ -52,7 +46,7 @@ class ListFireRepository @Inject constructor(
         }
     }
 
-    fun readData() {
+    fun readData(returnedList: (MutableList<ListEntity>) -> Unit) {
         val valueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val listNew = mutableListOf<ListEntity>()
@@ -60,8 +54,9 @@ class ListFireRepository @Inject constructor(
                     val list: ListEntity? = itemSnapshot.getValue(ListEntity::class.java)
                     list?.let { listNew.add(it) }
                 }
-                _listLiveData.value = listNew
+                returnedList(listNew)
             }
+
 
             override fun onCancelled(error: DatabaseError) {
                 TODO("Not yet implemented")
@@ -80,12 +75,16 @@ class ListFireRepository @Inject constructor(
         }
     }
 
-    fun getLists(): LiveData<List<ListEntity>> {
-        return listLiveData
-    }
-
-    fun deleteList(listId: String){
+    fun deleteList(listId: String) {
         reference.child(listId).removeValue()
+    }
+    fun updateList(list: ListEntity) {
+        externalScope.launch {
+
+            reference.child(list.id).setValue(list)
+            listDao.updateList(list)
+
+        }
     }
 
 }

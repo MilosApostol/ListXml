@@ -4,13 +4,16 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.listxml.data.firebase.user.UserFireViewModel
 import com.example.listxml.data.room.UserViewModel
 import com.example.listxml.databinding.ActivityRegisterBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 
 
 @AndroidEntryPoint
@@ -38,15 +41,23 @@ class RegisterActivity : AppCompatActivity() {
             binding.progressBar.visibility = View.VISIBLE
             if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
                 lifecycleScope.launch {
-                    if (userFireViewModel.signIn(
-                            name = name,
-                            email = email,
-                            password = password,
-                        )
-                    ) {
-                        binding.progressBar.visibility = View.GONE
-                        val intent = Intent(this@RegisterActivity, ListActivity::class.java)
-                        startActivity(intent)
+                        withTimeout(7000) {
+                            if (userFireViewModel.signIn(
+                                    name = name,
+                                    email = email,
+                                    password = password,
+                                )
+                            ) {
+                                binding.progressBar.visibility = View.GONE
+                                val intent = Intent(this@RegisterActivity, ListActivity::class.java)
+                                startActivity(intent)
+                            }
+
+                        }
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(this@RegisterActivity, "Operation timed out", Toast.LENGTH_SHORT).show()
+
+                }
                     }
                     /*
                 //if offline
@@ -83,5 +94,3 @@ class RegisterActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-}

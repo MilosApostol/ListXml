@@ -20,42 +20,37 @@
     <LinearLayout
         android:id="@+id/linear_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="60dp">
+        android:padding="60dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_view"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            android:background="@drawable/rounded_corner"
-            android:elevation="16dp">
+            android:hint="List name"
+            app:boxBackgroundMode="outline">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/text_input_list"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/text_view_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/insert_list_name"
-                app:boxBackgroundMode="filled">
+                android:textColorHint="#000"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/text_view_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text" />
-            </com.google.android.material.textfield.TextInputLayout>
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.textfield.TextInputLayout>
 
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_add_list"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_margin="20dp"
-        android:text="Add List"/>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_add_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="20dp"
+            android:text="Add List" />
 
-</LinearLayout>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

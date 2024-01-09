@@ -25,16 +25,6 @@ class ListRepository @Inject constructor(val dao: ListDao) {
     fun getListById(id: String): ListEntity {
         return dao.getListById(id)
     }
-    /*
-    fun getListsByUserId(userId: String): Flow<List<ListEntity>> {
-        return dao.getListsByUserId(userId)
-    }
-
-     */
-
-    fun getAllLists(): LiveData<List<ListEntity>>{
-        return dao.getAll()
-    }
 
     fun deleteAll(){
         return dao.deleteAll()

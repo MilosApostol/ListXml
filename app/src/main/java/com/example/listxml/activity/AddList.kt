@@ -29,6 +29,10 @@ class AddList : AppCompatActivity() {
         binding = ActivityAddListBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
+        supportActionBar?.title = "AddLists"
+
         val userId = intent.getStringExtra("userId")
         val listId = intent.getStringExtra("listId")
         if (listId != null) {
@@ -48,38 +52,40 @@ class AddList : AppCompatActivity() {
         binding.buttonAddList.setOnClickListener {
             val listName = binding.textViewList.text.toString()
             if (listName.isNotEmpty()) {
-                val reference = FirebaseDatabase.getInstance().getReference(Constants.Lists)
-                val key = reference.key!!
-                val list = ListEntity(
-                    id = UUID.randomUUID().toString(),
-                    name = listName,
-                    listCreatorId = Firebase.auth.currentUser?.uid!!
-                )
-                reference.push()
-                    .setValue(list) { _, ref ->
-                        val key = ref.key
-                        list.id = key!!
-                        lifecycleScope.launch {
-                            listFireViewModel.insertList(ref, list, key) { _ ->
-                                val intent = Intent(this@AddList, ListActivity::class.java)
-                                startActivity(intent)
-                                finish()
-                            }
-                        }
-
-                    }
-
-                //if offline
-                /*
-                listViewModel.updateList(
-                    ListEntity(
-                        id = listId,
+                if (listId == null) {
+                    val reference = FirebaseDatabase.getInstance().getReference(Constants.Lists)
+                    val key = reference.key!!
+                    val list = ListEntity(
+                        id = UUID.randomUUID().toString(),
                         name = listName,
-                        listCreatorId = userId
+                        listCreatorId = Firebase.auth.currentUser?.uid!!
                     )
-                )
-                val intent = Intent(this@AddList, ListActivity::class.java)
-                startActivity(intent)
+                    reference.push()
+                        .setValue(list) { _, ref ->
+                            val key = ref.key
+                            list.id = key!!
+                            lifecycleScope.launch {
+                                listFireViewModel.insertList(ref, list, key) { _ ->
+                                    val intent = Intent(this@AddList, ListActivity::class.java)
+                                    startActivity(intent)
+                                    finish()
+                                }
+                            }
+
+                        }
+                } else {
+                    listFireViewModel.updateList(
+                        ListEntity(
+                            id = listId,
+                            name = listName,
+                            listCreatorId = Firebase.auth.currentUser?.uid!!
+                        )
+                    )
+                    val intent = Intent(this@AddList, ListActivity::class.java)
+                    startActivity(intent)
+                }
+                //offline
+                /*
             } else {
                 Toast.makeText(this, "sad insert", Toast.LENGTH_LONG).show()
                 listViewModel.insertLists(

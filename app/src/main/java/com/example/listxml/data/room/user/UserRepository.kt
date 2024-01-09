@@ -7,19 +7,19 @@ import javax.inject.Inject
 
 class UserRepository @Inject constructor(private val dao: UserDao) {
 
-    fun insertUser(userEntity: UserEntity){
+    fun insertUser(userEntity: UserEntity) {
         dao.insertUser(userEntity)
     }
 
-    fun updateUser(userEntity: UserEntity){
+    fun updateUser(userEntity: UserEntity) {
         dao.updateUser(userEntity)
     }
 
-    fun getUserByEmail(email: String): UserEntity{
+    fun getUserByEmail(email: String): UserEntity {
         return dao.getUserByName(email)
     }
 
-    fun userExist(email: String): Boolean{
+    fun userExist(email: String): Boolean {
         return dao.userExists(email)
     }
 
@@ -31,17 +31,11 @@ class UserRepository @Inject constructor(private val dao: UserDao) {
 
     suspend fun updateRoomUserIdAfterLogin(username: String): Boolean {
         return withContext(Dispatchers.IO) {
-            try {
-                val firebaseUserId = FirebaseAuth.getInstance().currentUser!!.uid
-                val existingUser = dao.getUserByName(username)
-
-                dao.updateUserId(existingUser.id, firebaseUserId)
-                true
-            } catch (e: Exception) {
-                false
-            }
+            val firebaseUserId = FirebaseAuth.getInstance().currentUser!!.uid
+            val existingUser = dao.getUserByName(username)
+            dao.updateUserId(existingUser.id, firebaseUserId)
+            true
         }
-
     }
 }
 

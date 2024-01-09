@@ -22,22 +22,23 @@ class UserViewModel @Inject constructor(
     val userSessionManager: UserSessionManager
 ) : ViewModel() {
 
-    private val _isUserLoggedInState = MutableLiveData(false)
-    val isUserLoggedInState: LiveData<Boolean> = _isUserLoggedInState
+    private val isUserLoggedInState = MutableLiveData(false)
 
-    private val _shouldNavigate = MutableLiveData(false)
-    val shouldNavigate: LiveData<Boolean> = _shouldNavigate
+    private val shouldNavigate = MutableLiveData(false)
 
-    private val _lists = MutableLiveData<List<ListEntity>>(emptyList())
-    val lists: LiveData<List<ListEntity>> = _lists
+    private val lists = MutableLiveData<List<ListEntity>>(emptyList())
 
-    private val _userId = MutableLiveData<String?>(null)
-    val userId: LiveData<String?> = _userId
+    private val userId = MutableLiveData<String?>(null)
+
+
+    init {
+        getUser()
+    }
 
     fun insertUserOffline(userEntity: UserEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             userRepository.insertUser(userEntity)
-            _isUserLoggedInState.value = true
+            isUserLoggedInState.value = true
             userSessionManager.apply {
                 setUserLoggedIn(true)
                 currentUser = userEntity
@@ -56,7 +57,7 @@ class UserViewModel @Inject constructor(
         return withContext(Dispatchers.IO) {
             val user = userRepository.getUserByEmail(email)
             if (user != null && user.password == password) {
-                _isUserLoggedInState.value = true
+                isUserLoggedInState.value = true
                 userSessionManager.apply {
                     setUserLoggedIn(true)
                     currentUser = user
@@ -67,25 +68,13 @@ class UserViewModel @Inject constructor(
             }
         }
     }
-
-    suspend fun getUserByEmail(email: String): Boolean {
-        return withContext(Dispatchers.IO) {
-            val user = userRepository.getUserByEmail(email)
-            if (user == null) {
-                true
-            } else {
-                false
-            }
-        }
-    }
-
     suspend fun logOutOffline() {
+        Firebase.auth.signOut()
         val user: UserEntity? = userRepository.getUserByLoggedInStatus()
         user?.userLoggedIn = false
         withContext(Dispatchers.Main) {
-            _isUserLoggedInState.value = false
+            isUserLoggedInState.value = false
         }
-        Firebase.auth.signOut()
         if (user != null) {
             userRepository.updateUser(user)
             userSessionManager.apply {
@@ -98,18 +87,13 @@ class UserViewModel @Inject constructor(
     fun checkConditions() {
         viewModelScope.launch {
             if (isUserLoggedInState.value == true) {
-                _shouldNavigate.value = true
+                shouldNavigate.value = true
 
             } else if (loggingStateOffline()) {
-                _shouldNavigate.value = true
+                shouldNavigate.value = true
             }
         }
     }
-
-    suspend fun getUserDetails(): UserEntity? {
-        return userRepository.getUserByLoggedInStatus()
-    }
-
     fun getUser() = viewModelScope.launch {
         withContext(Dispatchers.IO) {
             val user = userRepository.getUserByLoggedInStatus()
@@ -117,7 +101,12 @@ class UserViewModel @Inject constructor(
                 userSessionManager.currentUser = user
                 userSessionManager.isUserLoggedIn.value = true
                 withContext(Dispatchers.Main) {
-                    _userId.value = user.id
+                    userId.value = user.id
+                }
+                if (user.id != Firebase.auth.currentUser?.uid.toString()) {
+                    updateRoomUserIdAfterLogin(
+                        Firebase.auth.currentUser?.email.toString()
+                    ) //setting a roomID == firebaseID
                 }
             }
         }
