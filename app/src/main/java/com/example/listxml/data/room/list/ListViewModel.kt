@@ -29,9 +29,9 @@ class ListViewModel @Inject constructor(
     private val userSessionManager: UserSessionManager
 ) : ViewModel() {
 
-    private val lists = MutableLiveData<List<ListEntity>>(emptyList())
+     val lists = MutableLiveData<List<ListEntity>>(emptyList())
 
-    private val listUpdate = MutableLiveData<ListEntity>()
+     val listUpdate = MutableLiveData<ListEntity>()
 
 //offline
     fun getListsByUserId() = viewModelScope.launch {

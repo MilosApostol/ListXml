@@ -22,13 +22,13 @@ class UserViewModel @Inject constructor(
     val userSessionManager: UserSessionManager
 ) : ViewModel() {
 
-    private val isUserLoggedInState = MutableLiveData(false)
+     val isUserLoggedInState = MutableLiveData(false)
 
-    private val shouldNavigate = MutableLiveData(false)
+     val shouldNavigate = MutableLiveData(false)
 
-    private val lists = MutableLiveData<List<ListEntity>>(emptyList())
+     val lists = MutableLiveData<List<ListEntity>>(emptyList())
 
-    private val userId = MutableLiveData<String?>(null)
+     val userId = MutableLiveData<String?>(null)
 
 
     init {

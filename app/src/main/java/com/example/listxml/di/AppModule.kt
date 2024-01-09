@@ -2,7 +2,11 @@ package com.example.listxml.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.listxml.additems.AddItemsRep
+import com.example.listxml.additems.AddItemsViewModel
 import com.example.listxml.data.room.AppDatabase
+import com.example.listxml.retrofit.ApiItemsClient
+import com.example.listxml.retrofit.ApiService
 import com.example.listxml.session.UserSessionManager
 import com.example.listxml.utill.ContextProvider
 import dagger.Module
@@ -30,12 +34,25 @@ class AppModule {
     @Singleton
     @Provides
     fun providesUserSession(): UserSessionManager = UserSessionManager()
+
     @Singleton
     @Provides
     fun provideExternalScope(): CoroutineScope = CoroutineScope(SupervisorJob())
 
     @Singleton
     @Provides
-    fun providesContextProvider(@ApplicationContext appContext: Context) =
-        ContextProvider(appContext)
+    fun providesContextProvider(@ApplicationContext context: Context) =
+        ContextProvider(context)
+
+    @Provides
+    @Singleton
+    fun providesAddItemsService(): ApiService {
+        return ApiItemsClient.apiService
+    }
+
+    @Provides
+    @Singleton
+    fun providesViewModel(repository: AddItemsRep) = AddItemsViewModel(repository)
+
+
 }
