@@ -1,6 +1,5 @@
 package com.example.listxml.data.firebase.list
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,9 +11,6 @@ import com.example.listxml.session.UserSessionManager
 import com.google.firebase.database.DatabaseReference
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -32,9 +28,6 @@ class ListFireViewModel @Inject constructor(
 
     // you dont have to specify the listLiveData directly, it will be filled from repository.readdata()
 
-    init {
-        repository.readData()
-    }
     fun insertList(
         reference: DatabaseReference,
         list: ListEntity,
@@ -44,15 +37,14 @@ class ListFireViewModel @Inject constructor(
         repository.insertList(reference, list, key, callback)
     }
 
-    suspend fun readData(filterId: String) {
-        val lists = withContext(Dispatchers.IO) {
-            repository.getLists()
+    fun readData(filterId: String) {
+        repository.readData { lists ->
+            val filteredLists = lists.filter { list -> list.listCreatorId == filterId }
+
+            _lists.value = filteredLists
         }
-
-        val filteredLists = lists.value?.filter { list -> list.listCreatorId == filterId }
-
-        _lists.value = filteredLists!!
     }
+
     fun removeList(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val list = listRepository.getListById(id)

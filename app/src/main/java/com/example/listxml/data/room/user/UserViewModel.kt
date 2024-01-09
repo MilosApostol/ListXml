@@ -34,6 +34,10 @@ class UserViewModel @Inject constructor(
     private val _userId = MutableLiveData<String?>(null)
     val userId: LiveData<String?> = _userId
 
+    init {
+        getUser()
+    }
+
     fun insertUserOffline(userEntity: UserEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             userRepository.insertUser(userEntity)
@@ -118,6 +122,10 @@ class UserViewModel @Inject constructor(
                 userSessionManager.isUserLoggedIn.value = true
                 withContext(Dispatchers.Main) {
                     _userId.value = user.id
+                }
+                if (user.id != Firebase.auth.currentUser?.uid.toString()){
+                    updateRoomUserIdAfterLogin(Firebase.auth.currentUser?.email
+                        .toString()) //setting a roomID == firebaseID
                 }
             }
         }

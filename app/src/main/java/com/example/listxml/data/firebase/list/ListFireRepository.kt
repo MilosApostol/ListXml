@@ -1,6 +1,5 @@
 package com.example.listxml.data.firebase.list
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.listxml.Constants
@@ -13,9 +12,6 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -29,14 +25,8 @@ class ListFireRepository @Inject constructor(
 
     private var job: Job? = null
 
-    private val _listLiveData = MutableLiveData<List<ListEntity>>(emptyList()) // Initialize with empty list
-    val listLiveData: LiveData<List<ListEntity>> get() = _listLiveData
-
     private val reference = FirebaseDatabase.getInstance().getReference(Constants.Lists)
 
-    init {
-        readData()
-    }
     fun insertList(
         reference: DatabaseReference,
         list: ListEntity,
@@ -52,21 +42,21 @@ class ListFireRepository @Inject constructor(
         }
     }
 
-    fun readData() {
+    fun readData(onDataReturned: (MutableList<ListEntity>) -> Unit) {
         val valueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val listNew = mutableListOf<ListEntity>()
                 for (itemSnapshot in snapshot.children) {
                     val list: ListEntity? = itemSnapshot.getValue(ListEntity::class.java)
                     list?.let { listNew.add(it) }
+                    onDataReturned(listNew)
                 }
-                _listLiveData.value = listNew
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
         }
+
         job = Job()
 
         job?.let { current ->
@@ -80,11 +70,7 @@ class ListFireRepository @Inject constructor(
         }
     }
 
-    fun getLists(): LiveData<List<ListEntity>> {
-        return listLiveData
-    }
-
-    fun deleteList(listId: String){
+    fun deleteList(listId: String) {
         reference.child(listId).removeValue()
     }
 
