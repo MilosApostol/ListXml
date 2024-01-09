@@ -46,6 +46,14 @@ class AddItems : AppCompatActivity() {
         buildRecyclerView()
 
 
+        addItemsAdapter = ChooseItemsAdapter().apply {
+            onItemClicked = {
+                onAddCoin(it)
+                dismiss()
+            }
+        }
+
+
     }
 
 

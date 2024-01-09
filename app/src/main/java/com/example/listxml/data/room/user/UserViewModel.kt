@@ -94,7 +94,7 @@ class UserViewModel @Inject constructor(
             }
         }
     }
-    fun getUser() = viewModelScope.launch {
+    private fun getUser() = viewModelScope.launch {
         withContext(Dispatchers.IO) {
             val user = userRepository.getUserByLoggedInStatus()
             if (user != null) {
@@ -112,7 +112,7 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    suspend fun updateRoomUserIdAfterLogin(email: String): Boolean {
+    private suspend fun updateRoomUserIdAfterLogin(email: String): Boolean {
         return userRepository.updateRoomUserIdAfterLogin(email)
     }
 
