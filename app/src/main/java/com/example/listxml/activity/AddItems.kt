@@ -9,6 +9,7 @@ import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.listxml.ChooseItemsAdapter
@@ -28,7 +29,6 @@ class AddItems : AppCompatActivity() {
     lateinit var binding: ActivityAddItemsBinding
     val addItemsViewModel: AddItemsViewModel by viewModels()
     private lateinit var addItemsAdapter: ChooseItemsAdapter
-    var courseModelArrayList = ArrayList<AddItemsEntity>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,12 +39,35 @@ class AddItems : AppCompatActivity() {
         binding.rvAddItems.adapter = addItemsAdapter
         lifecycleScope.launch {
             val items = addItemsViewModel.getItems()
+//
             withContext(Dispatchers.IO) {
-                addItemsAdapter.submitList(items)
+                //           addItemsAdapter.submitItems(list)
             }
         }
         buildRecyclerView()
 
+        binding.etSearch.editText?.doOnTextChanged { text, _, _, _ ->
+            text?.let {
+                addItemsAdapter.filter(it)
+            }
+        }
+
+        binding.rvAddItems.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = addItemsAdapter
+
+        }
+
+        mainViewModel.allCoinsData.observe(this) { list ->
+            chooseTokenAdapter.submitCoins(list.filter { !it.isFiat })
+            chooseTokenAdapter.submitCurrencies(list.filter { it.isFiat })
+        }
+
+        converterViewModel.coinsData.observe(this) {
+            if (!fromFutureInvestments && !showOnlyFiat) {
+                chooseTokenAdapter.submitAddedCoins(it)
+            }
+        }
 
         addItemsAdapter = ChooseItemsAdapter().apply {
             onItemClicked = {

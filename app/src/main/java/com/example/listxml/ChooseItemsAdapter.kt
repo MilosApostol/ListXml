@@ -12,7 +12,7 @@ class ChooseItemsAdapter : RecyclerView.Adapter<ChooseItemsAdapter.ViewHolder>()
     private var filteredItemsList = emptyList<AddItemsEntity>()
     var onItemClicked: (AddItemsEntity) -> Unit = {}
     private var alreadyAddedItem = listOf<AddItemsEntity>()
-
+    private var itemsList = listOf<AddItemsEntity>()
 
     inner class ViewHolder(binding: ChooseItemsBinding) : RecyclerView.ViewHolder(binding.root) {
         private val title = binding.textViewItem
@@ -24,15 +24,15 @@ class ChooseItemsAdapter : RecyclerView.Adapter<ChooseItemsAdapter.ViewHolder>()
             description.text = addItemsEntity.description
             price.text = addItemsEntity.price
 
-            itemView.setOnClickListener{
+            itemView.setOnClickListener {
                 onItemClicked(addItemsEntity)
             }
 
-            if (alreadyAddedItem.any{it.id == addItemsEntity.id}){
+            if (alreadyAddedItem.any { it.id == addItemsEntity.id }) {
                 description.alpha = 0.5f
                 price.alpha = 0.5f
                 itemView.isClickable = false
-            } else{
+            } else {
                 description.alpha = 1.0f
                 price.alpha = 1.0f
                 itemView.isClickable = false
@@ -50,9 +50,28 @@ class ChooseItemsAdapter : RecyclerView.Adapter<ChooseItemsAdapter.ViewHolder>()
         )
     }
 
-    fun submitList(newItems: List<AddItemsEntity>) {
-        filteredItemsList = newItems
-        notifyDataSetChanged() // Or use DiffUtil for efficient updates
+    fun submitItems(list: List<AddItemsEntity>) {
+        itemsList = list
+        filteredItemsList = itemsList
+        notifyDataSetChanged()
+    }
+
+    fun submitAddedItems(list: List<AddItemsEntity>) {
+        alreadyAddedItem = list
+        notifyDataSetChanged()
+    }
+
+    fun filter(charSequence: CharSequence) {
+        filteredItemsList = if (charSequence.isEmpty()) {
+            itemsList
+        } else {
+            itemsList.filter {
+                it.title.contains(charSequence, true) || it.price.contains(
+                    charSequence,
+                    true
+                )
+            }
+        }
     }
 
     override fun getItemCount(): Int {
