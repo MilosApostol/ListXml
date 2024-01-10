@@ -7,12 +7,15 @@ import com.example.listxml.additems.AddItemsEntity
 import com.example.listxml.databinding.ChooseItemsBinding
 
 
-class ChooseItemsAdapter : RecyclerView.Adapter<ChooseItemsAdapter.ViewHolder>() {
-
-    private var filteredItemsList = emptyList<AddItemsEntity>()
-    var onItemClicked: (AddItemsEntity) -> Unit = {}
-    private var alreadyAddedItem = listOf<AddItemsEntity>()
+class ChooseItemsAdapter() :
+    RecyclerView.Adapter<ChooseItemsAdapter.ViewHolder>() {
     private var itemsList = listOf<AddItemsEntity>()
+    private var filteredItemsList = emptyList<AddItemsEntity>()
+    private var alreadyAddedItem = listOf<AddItemsEntity>()
+    var onItemClicked: (AddItemsEntity, String) -> Unit = { _, _ -> }
+    private lateinit var listIds: List<String>
+
+
 
     inner class ViewHolder(binding: ChooseItemsBinding) : RecyclerView.ViewHolder(binding.root) {
         private val title = binding.textViewItem
@@ -24,8 +27,10 @@ class ChooseItemsAdapter : RecyclerView.Adapter<ChooseItemsAdapter.ViewHolder>()
             description.text = addItemsEntity.description
             price.text = addItemsEntity.price
 
+            description.maxLines = 2
+
             itemView.setOnClickListener {
-                onItemClicked(addItemsEntity)
+                onItemClicked(addItemsEntity, listIds[bindingAdapterPosition])
             }
 
             if (alreadyAddedItem.any { it.id == addItemsEntity.id }) {
@@ -43,9 +48,7 @@ class ChooseItemsAdapter : RecyclerView.Adapter<ChooseItemsAdapter.ViewHolder>()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
             ChooseItemsBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false
+                LayoutInflater.from(parent.context), parent, false
             )
         )
     }
@@ -66,13 +69,14 @@ class ChooseItemsAdapter : RecyclerView.Adapter<ChooseItemsAdapter.ViewHolder>()
             itemsList
         } else {
             itemsList.filter {
-                it.title.contains(charSequence, true) || it.price.contains(
-                    charSequence,
-                    true
+                it.title.contains(
+                    charSequence, true
                 )
             }
         }
+        notifyDataSetChanged()
     }
+
 
     override fun getItemCount(): Int {
         return filteredItemsList.size
@@ -80,5 +84,9 @@ class ChooseItemsAdapter : RecyclerView.Adapter<ChooseItemsAdapter.ViewHolder>()
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(filteredItemsList[position])
+    }
+
+    interface ChooseItemClickListener{
+        fun onItemClick(itemName: AddItemsEntity, itemId: String)
     }
 }

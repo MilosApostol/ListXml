@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.listxml.LiveEvent
 import com.example.listxml.Preferences
+import com.example.listxml.utill.ContextProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddItemsViewModel @Inject constructor(
-    val addItemsRep: AddItemsRep
+    val addItemsRep: AddItemsRep,
+    val contextProvider: ContextProvider
 ) : ViewModel() {
     val onNetworkRestoredEvent = LiveEvent<Unit>()
     val searchTextLiveData = MutableLiveData<String>()
@@ -26,53 +28,17 @@ class AddItemsViewModel @Inject constructor(
     init {
         initiateFetching()
     }
-    /*
-    fun getItems() {
-        viewModelScope.launch {
-            _addItem.value = addItemsRep.getItems()
-        }
-    }
-
-     */
-
     private fun initiateFetching() {
         viewModelScope.launch {
             fetchItemsList()
         }
     }
 
-    val filteredItemListLiveData: LiveData<List<AddItemsEntity>> =
-        MediatorLiveData<List<AddItemsEntity>>().apply {
-            addSource(addItems) { addItemList ->
-                val searchText = searchTextLiveData.value.orEmpty()
-
-                value = if (searchText.isBlank()) {
-                    addItemList
-                } else {
-                    addItemList.filter { item ->
-                        item.title.contains(searchText, ignoreCase = true)
-                    }
-                }
-            }
-
-            addSource(searchTextLiveData) { searchText ->
-                val addItemList = addItems.value.orEmpty()
-
-                value = if (searchText.isBlank()) {
-                    addItemList
-                } else {
-                    addItemList.filter { item ->
-                        item.title.contains(searchText, ignoreCase = true)
-                    }
-                }
-            }
-        }
-
     private fun fetchItemsList() {
         viewModelScope.launch {
-           addItemsRep.getItems()
+            addItemsRep.getItems()
+            }
         }
-    }
 
     fun onSearchChange(text: String) {
         searchTextLiveData.value = text

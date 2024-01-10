@@ -10,13 +10,7 @@ import javax.inject.Inject
 
 class AddItemsRep @Inject constructor(private val apiService: ApiService, val dao: AddItemsDao) {
 
-    fun getAllItems(): LiveData<List<AddItemsEntity>> = dao.getAllCoins()
-
-    /*
-        suspend fun getItems(): List<AddItemsEntity> {
-            return apiService.getItems()
-        }
-     */
+        fun getAllItems(): LiveData<List<AddItemsEntity>> = dao.getAllCoins()
 
     suspend fun getItem(title: String): AddItemsEntity {
         return apiService.getItem(title)

@@ -6,6 +6,8 @@ import android.net.NetworkCapabilities
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat.getSystemService
+
 class ContextFunctions {
     fun Context.showToast(@StringRes stringRes: Int) {
         Toast.makeText(this, getString(stringRes), Toast.LENGTH_SHORT).show()

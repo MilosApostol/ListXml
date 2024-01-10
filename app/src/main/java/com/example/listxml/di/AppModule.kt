@@ -54,8 +54,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providesViewModel(repository: AddItemsRep) =
-        AddItemsViewModel(repository)
+    fun providesViewModel(repository: AddItemsRep, contextProvider: ContextProvider) =
+        AddItemsViewModel(repository, contextProvider)
 
     @Singleton
     @Provides
