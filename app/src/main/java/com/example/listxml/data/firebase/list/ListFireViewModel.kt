@@ -29,8 +29,7 @@ class ListFireViewModel @Inject constructor(
     val userRepository: UserRepository,
     val listRepository: ListRepository
 ) : ViewModel() {
-
-    val lists = MutableLiveData<List<ListEntity>>(emptyList())
+     val lists = MutableLiveData<List<ListEntity>>(emptyList())
     private val listUpdate = MutableLiveData<ListEntity>()
 
 
@@ -43,13 +42,13 @@ class ListFireViewModel @Inject constructor(
         repository.insertList(reference, list, key, callback)
     }
 
-     fun readData(filterId: String) {
-            repository.readData {
-                val filteredLists = it.filter { list -> list.listCreatorId == filterId }
-                lists.value = filteredLists
+    fun readData(filterId: String) {
+        repository.readData {
+            val filteredLists = it.filter { list -> list.listCreatorId == filterId }
 
-            }
+            lists.value = filteredLists
         }
+    }
     fun removeList(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val list = listRepository.getListById(id)
@@ -60,10 +59,10 @@ class ListFireViewModel @Inject constructor(
             }
         }
     }
-
-    fun updateList(list: ListEntity) {
-        repository.updateList(list)
-        listUpdate.postValue(list)
+    fun updateList(update: ListEntity) {
+        repository.updateList(update)
+        listUpdate.postValue(update)
     }
+
 
 }

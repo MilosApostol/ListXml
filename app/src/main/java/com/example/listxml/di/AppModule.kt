@@ -2,6 +2,8 @@ package com.example.listxml.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.listxml.Preferences
+import com.example.listxml.additems.AddItemsDao
 import com.example.listxml.additems.AddItemsRep
 import com.example.listxml.additems.AddItemsViewModel
 import com.example.listxml.data.room.AppDatabase
@@ -52,7 +54,19 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun providesViewModel(repository: AddItemsRep) = AddItemsViewModel(repository)
+    fun providesViewModel(repository: AddItemsRep) =
+        AddItemsViewModel(repository)
 
+    @Singleton
+    @Provides
+    fun provideAddItemsDao(db: AppDatabase) = db.addItemsDao()
 
+    @Singleton
+    @Provides
+    fun provideAddItemsRep(apiService: ApiService, dao: AddItemsDao) = AddItemsRep(apiService, dao)
+
+    @Singleton
+    @Provides
+    fun providesPreferences(@ApplicationContext appContext: Context) =
+        Preferences.getInstance(appContext)
 }

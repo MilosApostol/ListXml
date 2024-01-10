@@ -33,7 +33,6 @@ class AddList : AppCompatActivity() {
         supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.title = "AddLists"
 
-        val userId = intent.getStringExtra("userId")
         val listId = intent.getStringExtra("listId")
         if (listId != null) {
             //this works
@@ -74,6 +73,7 @@ class AddList : AppCompatActivity() {
 
                         }
                 } else {
+
                     listFireViewModel.updateList(
                         ListEntity(
                             id = listId,

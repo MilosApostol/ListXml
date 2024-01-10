@@ -75,11 +75,6 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
         listFireViewModel.lists.observe(this@ListActivity){
             setupListToRecyclerView(it)
         }
-        binding.button.setOnClickListener {
-            lifecycleScope.launch {
-                listFireViewModel.readData(userId ?: "")
-            }
-        }
         binding.toolbarList.setNavigationOnClickListener {
             binding.drawerLayout.open()
 
@@ -91,7 +86,6 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
         }
         binding.fabAdd.setOnClickListener {
             val intent = Intent(this, AddList::class.java)
-            intent.putExtra("userId", userId)
             startActivity(intent)
         }
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
