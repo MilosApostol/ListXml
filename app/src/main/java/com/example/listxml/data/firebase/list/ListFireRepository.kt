@@ -55,6 +55,8 @@ class ListFireRepository @Inject constructor(
                     list?.let { listNew.add(it) }
                 }
                 returnedList(listNew)
+                Log.d("listReadtrived", "Number of items retrieved: ${listNew.size}")
+
             }
 
 

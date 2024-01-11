@@ -32,13 +32,15 @@ class ItemsFireRepository @Inject constructor(
 
     fun insertItems(
         reference: DatabaseReference,
-        list: ItemsEntity,
+        item: ItemsEntity,
+        key: String,
         callback: (Boolean) -> Unit
     ) {
         externalScope.launch {
-            itemsDao.insertItem(list)
+            val updateItem = item.copy(id = key)
+            itemsDao.insertItem(itemsEntity = updateItem)
 
-            reference.setValue(list).await()
+            reference.child(key).setValue(updateItem).await()
             callback(true)
         }
     }
@@ -52,8 +54,6 @@ class ItemsFireRepository @Inject constructor(
                     itemList?.let { itemsNew.add(it) }
                 }
                 returnedItems(itemsNew)
-                Log.d("ItemsRetrieved", "Number of items retrieved: ${itemsNew.size}")
-
             }
 
 

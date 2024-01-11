@@ -20,6 +20,8 @@
             android:padding="16dp">
 
             <TextView
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:id="@+id/textName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

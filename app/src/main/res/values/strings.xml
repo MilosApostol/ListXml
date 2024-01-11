@@ -20,4 +20,6 @@
     <string name="logout">Logout</string>
     <string name="action_search">action_search</string>
     <string name="search_for_items">Search for items</string>
+    <string name="mypreferences">myPreferences</string>
+    <string name="listidPref">listId</string>
 </resources>

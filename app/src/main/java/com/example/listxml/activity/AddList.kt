@@ -53,16 +53,19 @@ class AddList : AppCompatActivity() {
             if (listName.isNotEmpty()) {
                 if (listId == null) {
                     val reference = FirebaseDatabase.getInstance().getReference(Constants.Lists)
-                    val key = reference.key!!
                     val list = ListEntity(
                         id = UUID.randomUUID().toString(),
                         name = listName,
                         listCreatorId = Firebase.auth.currentUser?.uid!!
                     )
+
+
                     reference.push()
-                        .setValue(list) { _, ref ->
+                        .setValue(list){ _, ref ->
                             val key = ref.key
                             list.id = key!!
+
+
                             lifecycleScope.launch {
                                 listFireViewModel.insertList(ref, list, key) { _ ->
                                     val intent = Intent(this@AddList, ListActivity::class.java)

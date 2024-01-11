@@ -13,6 +13,11 @@ class ItemsAdapter(
     private var itemClickListener: ItemsAdapter.ItemClickListener,
 
     ) : RecyclerView.Adapter<ItemsAdapter.ViewHolder>() {
+
+    var onDelete: (ItemsEntity) -> Unit = {}
+
+
+
     inner class ViewHolder(private val binding: ItemRvBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: ItemsEntity) {
@@ -41,6 +46,16 @@ class ItemsAdapter(
     fun swapItems(fromPosition: Int, toPosition: Int) {
         Collections.swap(items, fromPosition, toPosition)
         notifyItemMoved(fromPosition, toPosition)
+    }
+
+    fun getItemsId(position: Int): ItemsEntity{
+        return items[position]
+    }
+
+    fun deleteItem(position: Int){
+        val item = items[position]
+        onDelete(item)
+
     }
 
     interface ItemClickListener {

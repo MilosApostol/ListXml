@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.listxml.ChooseItemsAdapter
 import com.example.listxml.Constants
+import com.example.listxml.R
 import com.example.listxml.additems.AddItemsEntity
 import com.example.listxml.additems.AddItemsViewModel
 import com.example.listxml.data.firebase.items.ItemsFireViewModel
@@ -43,10 +44,9 @@ class AddItems : AppCompatActivity(), ChooseItemsAdapter.ItemClickListener {
             setupListToRecyclerView(itemsList)
             binding.rvAddItems.visibility = View.GONE
         }
-        val listId = intent.getStringExtra("id")
-        if (listId != null) {
-            id = listId
-        }
+        val sharedPreferences = getSharedPreferences(getString(R.string.mypreferences), MODE_PRIVATE)
+        id = sharedPreferences.getString(getString(R.string.listidPref), "") ?: ""
+
     }
 
 
@@ -89,17 +89,27 @@ class AddItems : AppCompatActivity(), ChooseItemsAdapter.ItemClickListener {
         binding.rvAddItems.visibility = View.VISIBLE
     }
     override fun onItemClick(item: AddItemsEntity) {
-        lifecycleScope.launch {
-            val item = ItemsEntity(
+        val reference = FirebaseDatabase.getInstance().getReference(Constants.Items)
+        val key = reference.key!!
+        val item = ItemsEntity(
                 UUID.randomUUID().toString(),
                 item.title,
                 item.description,
-                id ?: "something went wrong"
+                id
             )
-            itemsFireViewModel.insertItems(reference, item) { _ ->
+            reference.push()
+                .setValue(item){_, ref ->
+                val key = ref.key
+                item.id = key!!
 
-                val intent = Intent(this@AddItems, ItemsActivity::class.java)
-                startActivity(intent)
+
+                lifecycleScope.launch {
+                    itemsFireViewModel.insertItems(reference, item, key) { _ ->
+                        val intent = Intent(this@AddItems, ItemsActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
+
             }
         }
     }

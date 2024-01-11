@@ -1,6 +1,7 @@
 package com.example.listxml.activity
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -42,7 +43,7 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
     private val userViewModel: UserViewModel by viewModels()
     private var userId: String? = ""
     private lateinit var listAdapter: ListAdapter
-
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,26 +55,27 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.title = "Lists"
+        sharedPreferences = getSharedPreferences(getString(R.string.mypreferences), MODE_PRIVATE)
 
         val backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 onBackPressedDispatcher.onBackPressed()
             }
         }
-/*
-        //if offline
-        listViewModel.lists.observe(this@ListActivity) {
-            setupListToRecyclerView(it)
-        }
+        /*
+                //if offline
+                listViewModel.lists.observe(this@ListActivity) {
+                    setupListToRecyclerView(it)
+                }
 
 
- */
+         */
 
         userViewModel.userId.observe(this@ListActivity) { id ->
             listFireViewModel.readData()
         }
 
-        listFireViewModel.lists.observe(this@ListActivity){
+        listFireViewModel.lists.observe(this@ListActivity) {
             setupListToRecyclerView(it)
         }
         binding.toolbarList.setNavigationOnClickListener {
@@ -91,11 +93,13 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
         }
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
     }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toolbar_menu, menu)
         return true
 
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_logout -> {
@@ -111,6 +115,7 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
             else -> return super.onOptionsItemSelected(item)
         }
     }
+
     private fun setupListToRecyclerView(list: List<ListEntity>) {
         if (list.isNotEmpty()) {
             binding.rvList.visibility = View.VISIBLE
@@ -128,9 +133,13 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
 
     override fun onListItemCLick(listName: ListEntity, listId: String) {
         val intent = Intent(this, ItemsActivity::class.java)
-        intent.putExtra("listId", listId)
+        with(sharedPreferences.edit()) {
+            putString(getString(R.string.listidPref), listId)
+            apply()
+        }
         startActivity(intent)
     }
+
     override fun onItemMoreClick(listName: ListEntity, listId: String, anchorView: View) {
         showPopupMenu(anchorView, listId)
     }
@@ -143,7 +152,7 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
             setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.action_delete -> {
-                      listFireViewModel.removeList(listId)
+                        listFireViewModel.removeList(listId)
                     }
 
                     R.id.action_rename -> {

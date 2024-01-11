@@ -21,13 +21,15 @@ class ItemsFireViewModel @Inject constructor(
     val repositoryRoom: ItemsRepository
 ) : ViewModel() {
 
-     val items = MutableLiveData<List<ItemsEntity>>()
+     val items = MutableLiveData<List<ItemsEntity>>(emptyList())
 
     fun insertItems(
         reference: DatabaseReference,
         list: ItemsEntity,
-        callback: (Boolean) -> Unit){
-        repository.insertItems(reference, list, callback)
+        key: String,
+        callback: (Boolean) -> Unit
+    ){
+        repository.insertItems(reference, list, key, callback)
     }
 
     fun fetchItems() {
@@ -39,7 +41,7 @@ class ItemsFireViewModel @Inject constructor(
     }
 
 
-    fun removeList(id: String) {
+    fun removeItem(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val item = repositoryRoom.findItemById(id)
             repositoryRoom.deleteItems(item)
