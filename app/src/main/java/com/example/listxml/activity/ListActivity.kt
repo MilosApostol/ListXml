@@ -68,8 +68,9 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
 
 
  */
+
         userViewModel.userId.observe(this@ListActivity) { id ->
-            listFireViewModel.readData(id ?: "")
+            listFireViewModel.readData()
         }
 
         listFireViewModel.lists.observe(this@ListActivity){
@@ -116,7 +117,6 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
             binding.textViewEmpty.visibility = View.GONE
             binding.rvList.layoutManager = LinearLayoutManager(this)
 
-            // Create the adapter with a list of listIds, one for each item
             val listIds = list.map { it.id }
             listAdapter = ListAdapter(list, this@ListActivity, listIds)
             binding.rvList.adapter = listAdapter

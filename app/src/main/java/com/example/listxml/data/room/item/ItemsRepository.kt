@@ -8,6 +8,10 @@ class ItemsRepository @Inject constructor(val dao: ItemsDao){
         dao.insertItem(itemsEntity)
     }
 
+    fun findItemById(id: String): ItemsEntity{
+        return dao.getItemsById(id)
+    }
+
     fun updateItems(itemsEntity: ItemsEntity){
         dao.updateItem(itemsEntity)
     }

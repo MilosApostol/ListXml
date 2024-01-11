@@ -7,17 +7,20 @@ import com.example.listxml.additems.AddItemsEntity
 import com.example.listxml.databinding.ChooseItemsBinding
 
 
-class ChooseItemsAdapter() :
+class ChooseItemsAdapter(
+    val items: List<AddItemsEntity>,
+    var listId: List<String>
+) :
     RecyclerView.Adapter<ChooseItemsAdapter.ViewHolder>() {
     private var itemsList = listOf<AddItemsEntity>()
     private var filteredItemsList = emptyList<AddItemsEntity>()
     private var alreadyAddedItem = listOf<AddItemsEntity>()
-    var onItemClicked: (AddItemsEntity, String) -> Unit = { _, _ -> }
     private lateinit var listIds: List<String>
+    private var mItemClickListener: ItemClickListener? = null
 
 
-
-    inner class ViewHolder(binding: ChooseItemsBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(val binding: ChooseItemsBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         private val title = binding.textViewItem
         private val description = binding.textViewDescription
         private val price = binding.textViewPrice
@@ -29,9 +32,6 @@ class ChooseItemsAdapter() :
 
             description.maxLines = 2
 
-            itemView.setOnClickListener {
-                onItemClicked(addItemsEntity, listIds[bindingAdapterPosition])
-            }
 
             if (alreadyAddedItem.any { it.id == addItemsEntity.id }) {
                 description.alpha = 0.5f
@@ -84,9 +84,19 @@ class ChooseItemsAdapter() :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(filteredItemsList[position])
+        holder.itemView.setOnClickListener {
+            mItemClickListener?.onItemClick(filteredItemsList[position])
+        }
     }
 
-    interface ChooseItemClickListener{
-        fun onItemClick(itemName: AddItemsEntity, itemId: String)
+    fun addItemClickListener(listener: ItemClickListener) {
+        mItemClickListener = listener
     }
+
+
+    interface ItemClickListener {
+        fun onItemClick(item: AddItemsEntity)
+    }
+
+
 }

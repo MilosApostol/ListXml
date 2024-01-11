@@ -3,25 +3,35 @@ package com.example.listxml.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.listxml.ChooseItemsAdapter
+import com.example.listxml.Constants
 import com.example.listxml.additems.AddItemsEntity
 import com.example.listxml.additems.AddItemsViewModel
+import com.example.listxml.data.firebase.items.ItemsFireViewModel
 import com.example.listxml.data.room.item.ItemsEntity
 import com.example.listxml.data.room.item.ItemsViewModel
 import com.example.listxml.databinding.ActivityAddItemsBinding
+import com.google.firebase.database.FirebaseDatabase
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 @AndroidEntryPoint
-class AddItems : AppCompatActivity(), ChooseItemsAdapter.ChooseItemClickListener {
+class AddItems : AppCompatActivity(), ChooseItemsAdapter.ItemClickListener {
     lateinit var binding: ActivityAddItemsBinding
     private val addItemsViewModel: AddItemsViewModel by viewModels()
     private val itemsViewModel: ItemsViewModel by viewModels()
+    private val itemsFireViewModel: ItemsFireViewModel by viewModels()
     private lateinit var addItemsAdapter: ChooseItemsAdapter
+    private lateinit var id: String
+    private val reference = FirebaseDatabase.getInstance().getReference(Constants.Items)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,53 +39,69 @@ class AddItems : AppCompatActivity(), ChooseItemsAdapter.ChooseItemClickListener
         val view = binding.root
         setContentView(view)
 
-            addItemsAdapter = ChooseItemsAdapter().apply {
-                onItemClicked = { item, id ->
-                    onAddItem(
-                        ItemsEntity(
-                            UUID.randomUUID().toString(),
-                            item.title,
-                            item.description,
-                            item.price
-                        )
-                    )
-                    val intent = Intent(this@AddItems, ItemsActivity::class.java)
-                    startActivity(intent)
+        addItemsViewModel.allItemsData.observe(this) { itemsList ->
+            setupListToRecyclerView(itemsList)
+            binding.rvAddItems.visibility = View.GONE
+        }
+        val listId = intent.getStringExtra("id")
+        if (listId != null) {
+            id = listId
+        }
+    }
 
+
+    private fun setupListToRecyclerView(items: List<AddItemsEntity>) {
+        if (items.isNotEmpty()) {
+            val listIds = items.map { it.id }
+            addItemsAdapter = ChooseItemsAdapter(items, listIds)
+            binding.rvAddItems.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = addItemsAdapter
+            }
+
+            binding.etSearch.editText?.setOnClickListener {
+                handleEditTextFocus()
+            }
+
+            binding.etSearch.editText?.setOnFocusChangeListener { _, hasFocus ->
+                if (hasFocus) {
+                    handleEditTextFocus()
                 }
             }
-        binding.rvAddItems.adapter = addItemsAdapter
-        binding.rvAddItems.visibility = View.GONE
 
+            binding.etSearch.editText?.doOnTextChanged { text, _, _, _ ->
+                text?.let {
+                    addItemsAdapter.filter(it)
+                }
+            }
+            //      addItemsAdapter.onItemClicked = { item, id ->
 
-        addItemsAdapter.filter(binding.etSearch.editText?.text ?: "")
-
-        binding.etSearch.editText?.doOnTextChanged { text, _, _, _ ->
-            binding.rvAddItems.visibility = View.VISIBLE
-            text?.let {
-                addItemsAdapter.filter(it)
+            addItemsAdapter.submitItems(items)
+            addItemsAdapter.addItemClickListener(this)
+            binding.rvAddItems.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = addItemsAdapter
             }
         }
-
-
-        binding.rvAddItems.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = addItemsAdapter
-        }
-
-        addItemsViewModel.allItemsData.observe(this) {
-            addItemsAdapter.submitItems(it)
-        }
-
-
     }
-
-    private fun onAddItem(item: ItemsEntity) {
-        itemsViewModel.insertItems(item)
+    private fun handleEditTextFocus() {
+        addItemsAdapter.filter(binding.etSearch.editText?.text ?: "")
+        binding.rvAddItems.visibility = View.VISIBLE
     }
+    override fun onItemClick(item: AddItemsEntity) {
+        lifecycleScope.launch {
+            val item = ItemsEntity(
+                UUID.randomUUID().toString(),
+                item.title,
+                item.description,
+                id ?: "something went wrong"
+            )
+            itemsFireViewModel.insertItems(reference, item) { _ ->
 
-    override fun onItemClick(itemName: AddItemsEntity, itemId: String) {
-
+                val intent = Intent(this@AddItems, ItemsActivity::class.java)
+                startActivity(intent)
+            }
+        }
     }
 }
 

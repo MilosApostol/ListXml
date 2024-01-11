@@ -42,9 +42,9 @@ class ListFireViewModel @Inject constructor(
         repository.insertList(reference, list, key, callback)
     }
 
-    fun readData(filterId: String) {
+    fun readData() {
         repository.readData {
-            val filteredLists = it.filter { list -> list.listCreatorId == filterId }
+            val filteredLists = it.filter { list -> list.listCreatorId == Firebase.auth.currentUser?.uid }
 
             lists.value = filteredLists
         }

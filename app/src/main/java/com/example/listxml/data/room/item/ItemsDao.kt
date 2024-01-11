@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.example.listxml.data.room.list.ListEntity
 
 @Dao
 abstract class ItemsDao {
@@ -24,8 +25,7 @@ abstract class ItemsDao {
     abstract fun getAll(): LiveData<List<ItemsEntity>>
 
     @Query("SELECT * FROM `items_table` WHERE id = :id")
-    abstract fun getItemsById(id:String): LiveData<List<ItemsEntity>>
-
+    abstract fun getItemsById(id:String): ItemsEntity
 
     @Query("SELECT * FROM `items_table` WHERE listParent = :listId")
     abstract fun getItemsWithListId(listId:String): LiveData<List<ItemsEntity>>
