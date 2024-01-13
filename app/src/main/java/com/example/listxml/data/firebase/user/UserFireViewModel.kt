@@ -26,13 +26,15 @@ class UserFireViewModel @Inject constructor(
     private val isUserLoggedInState = MutableLiveData(false)
 
     suspend fun logIn(email: String, password: String): Boolean {
-        return withContext(Dispatchers.Main) {
+        return withContext(Dispatchers.IO) {
             val user = userRepository.getUserByEmail(email)
             if (user != null) {
                 if (user.password == password) {
-                    userSessionManager.currentUser = user
                     userRepository.updateUser(user.copy(userLoggedIn = true))
-                    isUserLoggedInState.value = true
+                    withContext(Dispatchers.Main) {
+                        userSessionManager.currentUser = user
+                        isUserLoggedInState.value = true
+                    }
                     return@withContext repository.logIn(email, password)
                 } else {
                     return@withContext false
@@ -68,6 +70,22 @@ class UserFireViewModel @Inject constructor(
                 }
             } else {
                 return@withContext false
+            }
+        }
+    }
+
+    suspend fun logOutOnline() {
+        Firebase.auth.signOut()
+        val user: UserEntity? = userRepository.getUserByLoggedInStatus()
+        user?.userLoggedIn = false
+        withContext(Dispatchers.Main) {
+            isUserLoggedInState.value = false
+        }
+        if (user != null) {
+            userRepository.updateUser(user)
+            userSessionManager.apply {
+                setUserLoggedIn(false)
+                currentUser = null
             }
         }
     }

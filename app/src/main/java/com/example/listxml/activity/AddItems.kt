@@ -60,12 +60,12 @@ class AddItems : AppCompatActivity(), ChooseItemsAdapter.ItemClickListener {
             }
 
             binding.etSearch.editText?.setOnClickListener {
-                handleEditTextFocus()
+                handleEditTextFocus(items)
             }
 
             binding.etSearch.editText?.setOnFocusChangeListener { _, hasFocus ->
                 if (hasFocus) {
-                    handleEditTextFocus()
+                    handleEditTextFocus(items)
                 }
             }
 
@@ -74,9 +74,6 @@ class AddItems : AppCompatActivity(), ChooseItemsAdapter.ItemClickListener {
                     addItemsAdapter.filter(it)
                 }
             }
-            //      addItemsAdapter.onItemClicked = { item, id ->
-
-            addItemsAdapter.submitItems(items)
             addItemsAdapter.addItemClickListener(this)
             binding.rvAddItems.apply {
                 layoutManager = LinearLayoutManager(context)
@@ -84,8 +81,15 @@ class AddItems : AppCompatActivity(), ChooseItemsAdapter.ItemClickListener {
             }
         }
     }
-    private fun handleEditTextFocus() {
-        addItemsAdapter.filter(binding.etSearch.editText?.text ?: "")
+    private fun handleEditTextFocus(items: List<AddItemsEntity>) {
+        val searchText = binding.etSearch.editText?.text.toString().trim().lowercase()
+
+        // Filter and remove duplicates:
+        val filteredList = addItemsAdapter.items.filter { item ->
+            item.title.trim().lowercase().contains(searchText)
+        }.distinctBy { it.title.trim().lowercase() }
+
+        addItemsAdapter.submitItems(filteredList) // Update adapter with filtered list
         binding.rvAddItems.visibility = View.VISIBLE
     }
     override fun onItemClick(item: AddItemsEntity) {
@@ -114,50 +118,3 @@ class AddItems : AppCompatActivity(), ChooseItemsAdapter.ItemClickListener {
         }
     }
 }
-
-/*
-        override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-            menuInflater.inflate(R.menu.search, menu)
-            val searchItem = menu?.findItem(R.id.action_search)
-            val searchView = searchItem?.actionView as? SearchView ?: return false
-
-            searchView.setOnQueryTextListener(object :
-                SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
-                    return false
-                }
-
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    if (newText != null) {
-                        //     filter(newText);
-                        //    val filteredData = originalData.filter { item ->
-                        //        item.name.contains(newText, ignoreCase = true) // Adjust filtering criteria
-                        //         adapter.submitList(filteredData) // Update adapter with filtered data
-                    } else {
-                        //          adapter.submitList(originalData) // Reset to original data if query is empty
-                    }
-                    return true
-
-                }
-            }
-            )
-            return true
-        }
-
-
-        override fun onOptionsItemSelected(item: MenuItem): Boolean {
-            when (item.itemId) {
-                R.id.action_logout -> {
-                    lifecycleScope.launch(Dispatchers.IO) {
-                    }
-                    val intent = Intent(this, LoginScreen::class.java)
-                    startActivity(intent)
-                    return true
-                }
-
-                else -> return super.onOptionsItemSelected(item)
-            }
-        }
-    }
-
- */

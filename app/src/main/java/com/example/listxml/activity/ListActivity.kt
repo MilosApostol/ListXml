@@ -21,12 +21,14 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.listxml.ListAdapter
 import com.example.listxml.R
 import com.example.listxml.data.firebase.list.ListFireViewModel
+import com.example.listxml.data.firebase.user.UserFireViewModel
 import com.example.listxml.data.room.UserViewModel
 import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.data.room.list.ListViewModel
 import com.example.listxml.databinding.ActivityListBinding
 import com.example.listxml.databinding.ItemRvBinding
 import com.example.listxml.databinding.ListItemRvBinding
+import com.example.listxml.utill.hasInternetConnection
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,22 +37,22 @@ import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
-class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
-    private lateinit var binding: ActivityListBinding
+class ListActivity : BaseActivity<ActivityListBinding>(), ListAdapter.ListItemClickListener {
     private lateinit var itemsBinding: ListItemRvBinding
     private val listViewModel: ListViewModel by viewModels()
     private val listFireViewModel: ListFireViewModel by viewModels()
     private val userViewModel: UserViewModel by viewModels()
+    private val userFireViewModel: UserFireViewModel by viewModels()
     private var userId: String? = ""
     private lateinit var listAdapter: ListAdapter
     private lateinit var sharedPreferences: SharedPreferences
+    private var toolbarMenu: Menu? = null
+    private var navigationDrawerMenu: Menu? = null
+    override fun getViewBinding() = ActivityListBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityListBinding.inflate(layoutInflater)
         itemsBinding = ListItemRvBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
         setSupportActionBar(binding.toolbarList)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
@@ -62,14 +64,6 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
                 onBackPressedDispatcher.onBackPressed()
             }
         }
-        /*
-                //if offline
-                listViewModel.lists.observe(this@ListActivity) {
-                    setupListToRecyclerView(it)
-                }
-
-
-         */
 
         userViewModel.userId.observe(this@ListActivity) { id ->
             listFireViewModel.readData()
@@ -94,25 +88,60 @@ class ListActivity : AppCompatActivity(), ListAdapter.ListItemClickListener {
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.toolbar_menu, menu)
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        if (toolbarMenu == null) {
+            toolbarMenu = menu
+            menuInflater.inflate(R.menu.toolbar_menu, toolbarMenu)
+        }
+        if (navigationDrawerMenu == null) {
+            navigationDrawerMenu = menu
+            menuInflater.inflate(R.menu.navigation_drawer, navigationDrawerMenu)
+        }
         return true
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             R.id.action_logout -> {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    userViewModel.logOutOffline()
-
+                if (!hasInternetConnection()) {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        userFireViewModel.logOutOnline()
+                    }
+                } else {
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        userViewModel.logOutOffline()
+                    }
                 }
                 val intent = Intent(this, LoginScreen::class.java)
                 startActivity(intent)
-                return true
+                true
             }
-
-            else -> return super.onOptionsItemSelected(item)
+            R.id.user_icon ->{
+                val intent = Intent(this, UserActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.lists -> {
+                val intent = Intent(this, ListActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.add_list -> {
+                val intent = Intent(this, AddList::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.items -> {
+                val intent = Intent(this, ItemsActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.add_items -> {
+                val intent = Intent(this, AddItems::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

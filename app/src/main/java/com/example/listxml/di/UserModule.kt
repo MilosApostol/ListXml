@@ -1,5 +1,6 @@
 package com.example.listxml.di
 
+import com.example.listxml.data.firebase.user.UserRepFirebase
 import com.example.listxml.data.room.AppDatabase
 import com.example.listxml.data.room.UserViewModel
 import com.example.listxml.data.room.user.UserDao
@@ -27,6 +28,6 @@ class UserModule {
 
     @Provides
     @Singleton
-    fun providesUserViewModel(repository: UserRepository, sessionManager: UserSessionManager) =
-        UserViewModel(repository, sessionManager)
+    fun providesUserViewModel(repository: UserRepository, userRepFirebase: UserRepFirebase, sessionManager: UserSessionManager) =
+        UserViewModel(repository, userRepFirebase, sessionManager)
 }

@@ -6,15 +6,25 @@
     android:layout_height="match_parent"
     tools:context=".activity.AddList">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_register"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/toolbar_parent"
+        style="@style/Widget.MaterialComponents.AppBarLayout.PrimarySurface"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        app:layout_constraintTop_toTopOf="parent">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar_items"
+        style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:layout_constraintTop_toTopOf="parent"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        android:background="@android:color/transparent"
+        android:elevation="0dp"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="@string/itemsscreen" />
+
+    </com.google.android.material.appbar.AppBarLayout>
 
 
     <LinearLayout

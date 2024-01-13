@@ -6,4 +6,6 @@
     </style>
 
     <style name="Theme.ListXml" parent="Base.Theme.ListXml" />
+    <style name="CustomToolbarTextAppearance" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">20sp</item> </style>
 </resources>

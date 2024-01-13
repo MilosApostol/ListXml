@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:title="random"
+        android:id="@+id/menu_sort"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_default_person">
+        <menu>
+            <item android:title="Distance"/>
+            <item android:title="Salary"/>
+            <item android:title="Date Posted"/>
+        </menu>
+
+    </item>
+    <item
+        android:title="random"
+        android:id="@+id/menu_filter"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_add">
+        <menu>
+            <item android:title="Freelance"/>
+            <item android:title="Zero Hour"/>
+            <item android:title="Part Term"/>
+            <item android:title="Internship"/>
+        </menu>
+    </item>
+
+</menu>

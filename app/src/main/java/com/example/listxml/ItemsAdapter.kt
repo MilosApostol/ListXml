@@ -8,7 +8,7 @@ import com.example.listxml.databinding.ItemRvBinding
 import java.util.Collections
 
 class ItemsAdapter(
-    val items: List<ItemsEntity>,
+    var items: List<ItemsEntity>,
     val itemsId: List<String>,
     private var itemClickListener: ItemsAdapter.ItemClickListener,
 
@@ -50,6 +50,10 @@ class ItemsAdapter(
 
     fun getItemsId(position: Int): ItemsEntity{
         return items[position]
+    }
+    fun submitList(newList: List<ItemsEntity>) {
+        items = newList
+        notifyDataSetChanged()
     }
 
     fun deleteItem(position: Int){

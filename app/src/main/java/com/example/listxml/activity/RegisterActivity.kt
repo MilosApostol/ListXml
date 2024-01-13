@@ -41,6 +41,7 @@ class RegisterActivity : AppCompatActivity() {
             binding.progressBar.visibility = View.VISIBLE
             if (name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
                 lifecycleScope.launch {
+                    try {
                         withTimeout(7000) {
                             if (userFireViewModel.signIn(
                                     name = name,
@@ -51,46 +52,35 @@ class RegisterActivity : AppCompatActivity() {
                                 binding.progressBar.visibility = View.GONE
                                 val intent = Intent(this@RegisterActivity, ListActivity::class.java)
                                 startActivity(intent)
+                            } else {
+                                // Registration failed
+                                throw Exception("Registration failed")
                             }
-
                         }
-                    binding.progressBar.visibility = View.GONE
-                    Toast.makeText(this@RegisterActivity, "Operation timed out", Toast.LENGTH_SHORT).show()
-
-                }
-                    }
-                    /*
-                //if offline
-                lifecycleScope.launch {
-                    if (userViewModel.getUserByEmail(email)) {
-                        val user = UserEntity(
-                            id = UUID.randomUUID().toString(),
-                            userName = name,
-                            email = email,
-                            password = password,
-                            userLoggedIn = true
-                        )
-                        userViewModel.insertUserOffline(user)
-                        val intent = Intent(this@RegisterActivity, ListActivity::class.java)
-                        startActivity(intent)
-                    } else {
+                    } catch (e: TimeoutCancellationException) {
+                        // Timeout occurred
+                        binding.progressBar.visibility = View.GONE
                         Toast.makeText(
-                            this@RegisterActivity, "User Alreday exist",
-                            Toast.LENGTH_LONG
-                        )
-                            .show()
+                            this@RegisterActivity,
+                            "Operation timed out",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } catch (e: Exception) {
+                        // Other exceptions
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(
+                            this@RegisterActivity,
+                            "Registration failed",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             } else {
-                Toast.makeText(
-                    this@RegisterActivity, "Fill all of the fields",
-                    Toast.LENGTH_LONG
-                )
-                    .show()
+                Toast.makeText(this, "please fill all the filds", Toast.LENGTH_SHORT).show()
             }
+
         }
 
-                 */
-                }
-            }
-        }
+    }
+}
+

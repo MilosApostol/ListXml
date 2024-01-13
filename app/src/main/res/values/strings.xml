@@ -22,4 +22,7 @@
     <string name="search_for_items">Search for items</string>
     <string name="mypreferences">myPreferences</string>
     <string name="listidPref">listId</string>
+    <string name="itemsscreen">ItemsScreen</string>
+    <string name="no_internet_acces_limited">No internet, acces limited</string>
+    <string name="user">User</string>
 </resources>

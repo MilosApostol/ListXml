@@ -31,9 +31,4 @@ class AddItemsViewModel @Inject constructor(
             }
         }
 
-    fun onSearchChange(text: String) {
-        searchTextLiveData.value = text
-    }
-
-
 }

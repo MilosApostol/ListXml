@@ -1,31 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/user_icon"
+        android:icon="@drawable/ic_default_person"
+        app:showAsAction="withText"
+        android:title="Account" />
 
-    <group android:id="@+id/group1">
-        <item
-            android:id="@+id/tuctuc"
-            android:title="Subtitle"/>
-    </group>
-
-    <group
-        android:id="@+id/group2"
+    <group android:id="@+id/group1"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/subtitle"
-            android:title="Subtitle">
-            <menu>
-                <item
-                    android:id="@+id/item4"
-                    android:icon="@drawable/ic_menu"
-                    android:title="Item 4" />
-
-                <item
-                    android:id="@+id/item5"
-                    android:icon="@drawable/ic_email"
-                    android:title="Item 5" />
-
-            </menu>
-        </item>
+            android:id="@+id/lists"
+            android:title="List"
+            android:checked="true"/>
+        <item
+            android:id="@+id/add_list"
+            android:title="Add List" />
+        <item
+            android:id="@+id/items"
+            android:title="Items" />
+        <item
+            android:id="@+id/add_items"
+            android:title="Add Items" />
     </group>
 
 </menu>
+

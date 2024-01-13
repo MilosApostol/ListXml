@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.listxml.data.firebase.user.UserFireViewModel
+import com.example.listxml.data.firebase.user.UserRepFirebase
 import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.data.room.user.UserEntity
 import com.example.listxml.data.room.user.UserRepository
@@ -19,32 +21,21 @@ import javax.inject.Inject
 @HiltViewModel
 class UserViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val userFireRepository: UserRepFirebase,
     val userSessionManager: UserSessionManager
 ) : ViewModel() {
 
-     val isUserLoggedInState = MutableLiveData(false)
+    val isUserLoggedInState = MutableLiveData(false)
 
-     val shouldNavigate = MutableLiveData(false)
+    val shouldNavigate = MutableLiveData(false)
 
-     val lists = MutableLiveData<List<ListEntity>>(emptyList())
+    val lists = MutableLiveData<List<ListEntity>>(emptyList())
 
-     val userId = MutableLiveData<String?>(null)
+    val userId = MutableLiveData<String?>(null)
 
 
     init {
         getUser()
-    }
-
-    fun insertUserOffline(userEntity: UserEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            userRepository.insertUser(userEntity)
-            isUserLoggedInState.value = true
-            userSessionManager.apply {
-                setUserLoggedIn(true)
-                currentUser = userEntity
-            }
-
-        }
     }
 
     fun updateUser(userEntity: UserEntity) {
@@ -57,10 +48,12 @@ class UserViewModel @Inject constructor(
         return withContext(Dispatchers.IO) {
             val user = userRepository.getUserByEmail(email)
             if (user != null && user.password == password) {
-                isUserLoggedInState.value = true
-                userSessionManager.apply {
-                    setUserLoggedIn(true)
-                    currentUser = user
+                withContext(Dispatchers.Main) {
+                    isUserLoggedInState.value = true
+                    userSessionManager.apply {
+                        setUserLoggedIn(true)
+                        currentUser = user
+                    }
                 }
                 true
             } else {
@@ -68,8 +61,8 @@ class UserViewModel @Inject constructor(
             }
         }
     }
+
     suspend fun logOutOffline() {
-        Firebase.auth.signOut()
         val user: UserEntity? = userRepository.getUserByLoggedInStatus()
         user?.userLoggedIn = false
         withContext(Dispatchers.Main) {
@@ -88,12 +81,15 @@ class UserViewModel @Inject constructor(
         viewModelScope.launch {
             if (isUserLoggedInState.value == true) {
                 shouldNavigate.value = true
-
             } else if (loggingStateOffline()) {
                 shouldNavigate.value = true
+            } else if (!loggingStateOffline()) {
+                Firebase.auth.signOut()
+                shouldNavigate.value = false
             }
         }
     }
+
     private fun getUser() = viewModelScope.launch {
         withContext(Dispatchers.IO) {
             val user = userRepository.getUserByLoggedInStatus()
@@ -104,12 +100,21 @@ class UserViewModel @Inject constructor(
                     userId.value = user.id
                 }
                 if (user.id != Firebase.auth.currentUser?.uid.toString()) {
-                    updateRoomUserIdAfterLogin(
-                        Firebase.auth.currentUser?.email.toString()
-                    ) //setting a roomID == firebaseID
+                    withContext(Dispatchers.IO) {
+                        updateRoomUserIdAfterLogin(Firebase.auth.currentUser?.email.toString())
+                    } //setting a roomID == firebaseID
                 }
             }
         }
+    }
+
+    suspend fun getUserDetails(): UserEntity? {
+        return userRepository.getUserByLoggedInStatus()
+    }
+
+    suspend fun logInAfterOffline(email: String, password: String) {
+        isUserLoggedInState.value = true
+        userFireRepository.logIn(email, password)
     }
 
     private suspend fun updateRoomUserIdAfterLogin(email: String): Boolean {
