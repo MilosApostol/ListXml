@@ -16,7 +16,7 @@ import com.example.listxml.data.room.user.UserEntity
 
 @Database(
     entities = [UserEntity::class, ListEntity::class, ItemsEntity::class, AddItemsEntity::class],
-    version = 6,
+    version = 1,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

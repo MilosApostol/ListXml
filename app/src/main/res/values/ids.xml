@@ -4,4 +4,5 @@
     <item name="lists" type="id" />
     <item name="items" type="id" />
     <item name="add_items" type="id" />
+    <item name="button_save" type="id" />
 </resources>

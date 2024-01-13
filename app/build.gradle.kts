@@ -49,7 +49,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth:22.3.0")
     val room_version = "2.6.1"
     val lifecycle_version = "2.6.2"
-    implementation("androidx.work:work-runtime:2.7.1")
+    implementation("androidx.work:work-runtime:2.9.0")
 
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.core:core-ktx:1.12.0")
@@ -111,5 +111,19 @@ dependencies {
     implementation("com.google.firebase:firebase-storage:20.3.0")
     implementation("com.google.firebase:firebase-database:20.3.0")
     implementation("com.google.firebase:firebase-crashlytics-buildtools:2.9.9")
+    implementation ("com.github.bumptech.glide:glide:4.12.0")
+    implementation ("com.google.code.gson:gson:2.10.1")
+
+    // CameraX core library
+    implementation ("androidx.camera:camera-core:1.3.1")
+// CameraX Camera2 extensions
+    implementation ("androidx.camera:camera-camera2:1.3.1")
+// CameraX Lifecycle library
+    implementation ("androidx.camera:camera-lifecycle:1.3.1")
+// CameraX View class
+    implementation ("androidx.camera:camera-view:1.3.1")
+
+    //circle
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
 
 }

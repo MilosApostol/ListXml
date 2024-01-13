@@ -12,6 +12,8 @@ data class UserEntity(
     val email: String = "",
     val password: String = "",
     var userLoggedIn: Boolean = false,
-    val userHolder: String = ""
-) {
+    val userHolder: String = "",
+    val image: String = "",
+
+    ) {
 }
