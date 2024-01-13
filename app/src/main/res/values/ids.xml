@@ -2,6 +2,7 @@
 <resources>
     <item name="progress_bar" type="id" />
     <item name="lists" type="id" />
+    <item name="add_list" type="id" />
     <item name="items" type="id" />
     <item name="add_items" type="id" />
     <item name="button_save" type="id" />

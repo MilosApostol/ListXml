@@ -32,6 +32,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.listxml.Constants
 import com.example.listxml.Constants.Companion.CAMERA_PERMISSION_CODE
 import com.example.listxml.R
+import com.example.listxml.data.firebase.user.UserFireViewModel
 import com.example.listxml.data.room.UserViewModel
 import com.example.listxml.data.room.user.UserEntity
 import com.example.listxml.databinding.ActivityUserBinding
@@ -46,6 +47,7 @@ import java.util.UUID
 @AndroidEntryPoint
 class UserActivity : BaseActivity<ActivityUserBinding>(), View.OnClickListener {
     val userViewModel: UserViewModel by viewModels()
+    val userFireViewModel: UserFireViewModel by viewModels()
     override fun getViewBinding() = ActivityUserBinding.inflate(layoutInflater)
     private lateinit var activityGalleryLauncher: ActivityResultLauncher<Intent>
     private lateinit var activityCameraLauncher: ActivityResultLauncher<Intent>
@@ -56,16 +58,16 @@ class UserActivity : BaseActivity<ActivityUserBinding>(), View.OnClickListener {
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        saveImageUri = Uri.EMPTY
         activityGalleryLauncher()
         activityCameraLauncher()
         cameraLauncher()
         galleryLauncher()
-        binding.imageView.setOnClickListener(this)
         binding.textViewAddImage.setOnClickListener(this)
+        binding.buttonSave.setOnClickListener(this)
     }
 
-     private fun galleryLauncher() {
+    private fun galleryLauncher() {
         requestGalleryPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
         ) { permissions ->
@@ -138,7 +140,6 @@ class UserActivity : BaseActivity<ActivityUserBinding>(), View.OnClickListener {
             pictureDialogItems
         ) { dialog, which ->
             when (which) {
-                // Here we have create the methods for image selection from GALLERY
                 0 -> requestGalleryPermissions()
                 1 -> requestCameraPermissions()
             }
@@ -152,7 +153,6 @@ class UserActivity : BaseActivity<ActivityUserBinding>(), View.OnClickListener {
         )
         requestCameraPermissionLauncher.launch(permissions)
     }
-
     private fun requestGalleryPermissions() {
         val permissions = arrayOf(
             Manifest.permission.CAMERA,
@@ -191,10 +191,14 @@ class UserActivity : BaseActivity<ActivityUserBinding>(), View.OnClickListener {
         } catch (e: IOException) {
             e.printStackTrace()
         }
+        val savedUri = Uri.parse(file.absolutePath)
+        Log.d("ImageSaving", "$savedUri")
         return Uri.parse(file.absolutePath)
     }
 
     override fun onClick(view: View?) {
+        val userName = binding.textViewUser.text.toString()
+
         when (view!!.id) {
             R.id.text_view_add_image -> {
                 pictureDialog()
@@ -202,40 +206,25 @@ class UserActivity : BaseActivity<ActivityUserBinding>(), View.OnClickListener {
 
             R.id.button_save -> {
                 when {
-                    binding.textViewEmail.text.isNullOrEmpty() -> {
-                        Toast.makeText(
-                            this@UserActivity, "email missing ", Toast.LENGTH_SHORT
-                        ).show()
-                    }
-
-                    binding.textViewPassword.text.isNullOrEmpty() -> {
-                        Toast.makeText(
-                            this@UserActivity, "password missing ", Toast.LENGTH_SHORT
-                        ).show()
-                    }
-
-                    binding.textViewUser.text.isNullOrEmpty() -> {
+                    userName.isEmpty() -> {
                         Toast.makeText(
                             this@UserActivity, "user name missing ", Toast.LENGTH_SHORT
                         ).show()
                     }
 
-                    saveImageUri.toString().isNullOrEmpty() -> Toast.makeText(
+                    saveImageUri == Uri.EMPTY -> Toast.makeText(
                         this@UserActivity, "add image please", Toast.LENGTH_SHORT
                     ).show()
 
                     else -> {
-                        val userEntity = UserEntity(
-                            email = binding.textViewEmail.text.toString(),
-                            password = binding.textViewPassword.text.toString(),
-                            userName = binding.textViewUser.text.toString(),
-                            image = "$saveImageUri"
-                        )
                         lifecycleScope.launch {
-                            userViewModel.updateUser(userEntity)
+                            userViewModel.updateUser(
+                                userName = userName,
+                                image = saveImageUri.toString()
+                            )
+                            val intent = Intent(this@UserActivity, ListActivity::class.java)
+                            startActivity(intent)
                         }
-                        finish()
-
                     }
                 }
             }

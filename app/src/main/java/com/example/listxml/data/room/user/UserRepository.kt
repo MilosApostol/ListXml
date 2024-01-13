@@ -1,18 +1,25 @@
 package com.example.listxml.data.room.user
 
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-class UserRepository @Inject constructor(private val dao: UserDao) {
+class UserRepository @Inject constructor(
+    private val dao: UserDao,
+    private val externalScope: CoroutineScope
+) {
 
     fun insertUser(userEntity: UserEntity) {
         dao.insertUser(userEntity)
     }
 
     fun updateUser(userEntity: UserEntity) {
-        dao.updateUser(userEntity)
+        externalScope.launch {
+            dao.updateUser(userEntity)
+        }
     }
 
     fun getUserByEmail(email: String): UserEntity {

@@ -33,14 +33,19 @@ class UserViewModel @Inject constructor(
 
     val userId = MutableLiveData<String?>(null)
 
-
+    val user = MutableLiveData<UserEntity?>(null)
     init {
+        getUsers()
         getUser()
     }
 
-    fun updateUser(userEntity: UserEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            userRepository.updateUser(userEntity)
+
+    suspend fun updateUser(userName: String, image: String) {
+        val user: UserEntity? = userRepository.getUserByLoggedInStatus()
+        user?.image = image
+        user?.userName = userName
+        if (user != null) {
+            userRepository.updateUser(user)
         }
     }
 
@@ -83,14 +88,16 @@ class UserViewModel @Inject constructor(
                 shouldNavigate.value = true
             } else if (loggingStateOffline()) {
                 shouldNavigate.value = true
-            } else if (!loggingStateOffline()) {
-                Firebase.auth.signOut()
-                shouldNavigate.value = false
             }
         }
     }
 
-    private fun getUser() = viewModelScope.launch {
+    fun getUser() = viewModelScope.launch(Dispatchers.IO) {
+        withContext(Dispatchers.Main) {
+            user.value = userRepository.getUserByLoggedInStatus()
+        }
+    }
+    private fun getUsers() = viewModelScope.launch {
         withContext(Dispatchers.IO) {
             val user = userRepository.getUserByLoggedInStatus()
             if (user != null) {

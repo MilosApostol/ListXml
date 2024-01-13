@@ -8,12 +8,12 @@ import androidx.room.PrimaryKey
 data class UserEntity(
     @PrimaryKey(autoGenerate = false)
     var id: String = "",
-    val userName: String = "",
+    var userName: String = "",
     val email: String = "",
     val password: String = "",
     var userLoggedIn: Boolean = false,
     val userHolder: String = "",
-    val image: String = "",
+    var image: String = "",
 
     ) {
 }

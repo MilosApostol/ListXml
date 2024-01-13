@@ -55,8 +55,6 @@ class ListFireRepository @Inject constructor(
                     list?.let { listNew.add(it) }
                 }
                 returnedList(listNew)
-                Log.d("listReadtrived", "Number of items retrieved: ${listNew.size}")
-
             }
 
 
@@ -82,11 +80,8 @@ class ListFireRepository @Inject constructor(
     }
     fun updateList(list: ListEntity) {
         externalScope.launch {
-
             reference.child(list.id).setValue(list)
             listDao.updateList(list)
-
         }
     }
-
 }

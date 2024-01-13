@@ -10,6 +10,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
 import javax.inject.Singleton
 
 
@@ -24,10 +25,17 @@ class UserModule {
 
     @Provides
     @Singleton
-    fun providesUserRoom(dao: UserDao) = UserRepository(dao)
+    fun providesUserRoom(
+        dao: UserDao,
+        coroutineScope: CoroutineScope
+    ) = UserRepository(dao, coroutineScope)
 
     @Provides
     @Singleton
-    fun providesUserViewModel(repository: UserRepository, userRepFirebase: UserRepFirebase, sessionManager: UserSessionManager) =
+    fun providesUserViewModel(
+        repository: UserRepository,
+        userRepFirebase: UserRepFirebase,
+        sessionManager: UserSessionManager
+    ) =
         UserViewModel(repository, userRepFirebase, sessionManager)
 }

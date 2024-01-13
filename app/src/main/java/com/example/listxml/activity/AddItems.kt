@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
@@ -25,20 +26,18 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 @AndroidEntryPoint
-class AddItems : AppCompatActivity(), ChooseItemsAdapter.ItemClickListener {
-    lateinit var binding: ActivityAddItemsBinding
+class AddItems : BaseActivity<ActivityAddItemsBinding>(), ChooseItemsAdapter.ItemClickListener {
+    override fun getViewBinding() = ActivityAddItemsBinding.inflate(layoutInflater)
+
     private val addItemsViewModel: AddItemsViewModel by viewModels()
-    private val itemsViewModel: ItemsViewModel by viewModels()
     private val itemsFireViewModel: ItemsFireViewModel by viewModels()
     private lateinit var addItemsAdapter: ChooseItemsAdapter
     private lateinit var id: String
-    private val reference = FirebaseDatabase.getInstance().getReference(Constants.Items)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAddItemsBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setHomeButtonEnabled(true)
+        supportActionBar?.title = "AddItems"
 
         addItemsViewModel.allItemsData.observe(this) { itemsList ->
             setupListToRecyclerView(itemsList)
@@ -47,9 +46,13 @@ class AddItems : AppCompatActivity(), ChooseItemsAdapter.ItemClickListener {
         val sharedPreferences = getSharedPreferences(getString(R.string.mypreferences), MODE_PRIVATE)
         id = sharedPreferences.getString(getString(R.string.listidPref), "") ?: ""
 
+        val backPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onBackPressedDispatcher.onBackPressed()
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, backPressedCallback)
     }
-
-
     private fun setupListToRecyclerView(items: List<AddItemsEntity>) {
         if (items.isNotEmpty()) {
             val listIds = items.map { it.id }
@@ -105,15 +108,12 @@ class AddItems : AppCompatActivity(), ChooseItemsAdapter.ItemClickListener {
                 .setValue(item){_, ref ->
                 val key = ref.key
                 item.id = key!!
-
-
                 lifecycleScope.launch {
                     itemsFireViewModel.insertItems(reference, item, key) { _ ->
                         val intent = Intent(this@AddItems, ItemsActivity::class.java)
                         startActivity(intent)
                         finish()
                     }
-
             }
         }
     }

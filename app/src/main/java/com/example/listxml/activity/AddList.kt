@@ -20,15 +20,14 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 @AndroidEntryPoint
-class AddList : AppCompatActivity() {
-    private lateinit var binding: ActivityAddListBinding
+class AddList : BaseActivity<ActivityAddListBinding>() {
+    override fun getViewBinding() = ActivityAddListBinding.inflate(layoutInflater)
+
+
     private val listViewModel: ListViewModel by viewModels()
     private val listFireViewModel: ListFireViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityAddListBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.title = "AddLists"
@@ -47,7 +46,6 @@ class AddList : AppCompatActivity() {
                 }
             }
         }
-
         binding.buttonAddList.setOnClickListener {
             val listName = binding.textViewList.text.toString()
             if (listName.isNotEmpty()) {
@@ -58,14 +56,10 @@ class AddList : AppCompatActivity() {
                         name = listName,
                         listCreatorId = Firebase.auth.currentUser?.uid!!
                     )
-
-
                     reference.push()
-                        .setValue(list){ _, ref ->
+                        .setValue(list) { _, ref ->
                             val key = ref.key
                             list.id = key!!
-
-
                             lifecycleScope.launch {
                                 listFireViewModel.insertList(ref, list, key) { _ ->
                                     val intent = Intent(this@AddList, ListActivity::class.java)
@@ -101,7 +95,6 @@ class AddList : AppCompatActivity() {
                 val intent = Intent(this, ListActivity::class.java)
                 startActivity(intent)
             }
-
                  */
             } else {
                 Toast.makeText(this@AddList, "Empty list", Toast.LENGTH_LONG).show()

@@ -2,6 +2,10 @@ package com.example.listxml.activity
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -13,6 +17,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
@@ -25,6 +30,7 @@ import com.example.listxml.data.firebase.user.UserFireViewModel
 import com.example.listxml.data.room.UserViewModel
 import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.data.room.list.ListViewModel
+import com.example.listxml.data.room.user.UserEntity
 import com.example.listxml.databinding.ActivityListBinding
 import com.example.listxml.databinding.ItemRvBinding
 import com.example.listxml.databinding.ListItemRvBinding
@@ -34,20 +40,18 @@ import com.google.firebase.auth.auth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.FileNotFoundException
 
 
 @AndroidEntryPoint
 class ListActivity : BaseActivity<ActivityListBinding>(), ListAdapter.ListItemClickListener {
     private lateinit var itemsBinding: ListItemRvBinding
-    private val listViewModel: ListViewModel by viewModels()
     private val listFireViewModel: ListFireViewModel by viewModels()
     private val userViewModel: UserViewModel by viewModels()
     private val userFireViewModel: UserFireViewModel by viewModels()
-    private var userId: String? = ""
     private lateinit var listAdapter: ListAdapter
     private lateinit var sharedPreferences: SharedPreferences
-    private var toolbarMenu: Menu? = null
-    private var navigationDrawerMenu: Menu? = null
+    private lateinit var currentUser: UserEntity
     override fun getViewBinding() = ActivityListBinding.inflate(layoutInflater)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,6 +73,26 @@ class ListActivity : BaseActivity<ActivityListBinding>(), ListAdapter.ListItemCl
             listFireViewModel.readData()
         }
 
+        userViewModel.user.observe(this@ListActivity) { user ->
+            currentUser = user ?: return@observe
+            val imagePath = currentUser.image
+            val imageUri = Uri.parse("file://$imagePath")
+            val menuItem = binding.navigationView.menu.findItem(R.id.user_icon)
+            try {
+                val bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(imageUri))
+                val resizedBitmap = Bitmap.createScaledBitmap(
+                    bitmap,
+                    48,
+                    48,
+                    true
+                ) // Adjust the size as per your requirement
+                menuItem.icon = BitmapDrawable(resources, resizedBitmap)
+
+            } catch (e: FileNotFoundException) {
+                e.printStackTrace()
+            }
+        }
+
         listFireViewModel.lists.observe(this@ListActivity) {
             setupListToRecyclerView(it)
         }
@@ -78,6 +102,36 @@ class ListActivity : BaseActivity<ActivityListBinding>(), ListAdapter.ListItemCl
         }
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             menuItem.isChecked = true
+
+            when (menuItem.itemId) {
+                R.id.user_icon -> {
+
+                    val intent = Intent(this, UserActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+
+                R.id.lists -> {
+                    val intent = Intent(this, ListActivity::class.java)
+                    startActivity(intent)
+
+                }
+
+                R.id.add_list -> {
+                    val intent = Intent(this, AddList::class.java)
+                    startActivity(intent)
+                }
+
+                R.id.items -> {
+                    val intent = Intent(this, ItemsActivity::class.java)
+                    startActivity(intent)
+                }
+
+                R.id.add_items -> {
+                    val intent = Intent(this, AddItems::class.java)
+                    startActivity(intent)
+                }
+            }
             binding.drawerLayout.close()
             true
         }
@@ -89,14 +143,7 @@ class ListActivity : BaseActivity<ActivityListBinding>(), ListAdapter.ListItemCl
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        if (toolbarMenu == null) {
-            toolbarMenu = menu
-            menuInflater.inflate(R.menu.toolbar_menu, toolbarMenu)
-        }
-        if (navigationDrawerMenu == null) {
-            navigationDrawerMenu = menu
-            menuInflater.inflate(R.menu.navigation_drawer, navigationDrawerMenu)
-        }
+        menuInflater.inflate(R.menu.toolbar_menu, menu)
         return true
     }
 
@@ -116,31 +163,7 @@ class ListActivity : BaseActivity<ActivityListBinding>(), ListAdapter.ListItemCl
                 startActivity(intent)
                 true
             }
-            R.id.user_icon ->{
-                val intent = Intent(this, UserActivity::class.java)
-                startActivity(intent)
-                true
-            }
-            R.id.lists -> {
-                val intent = Intent(this, ListActivity::class.java)
-                startActivity(intent)
-                true
-            }
-            R.id.add_list -> {
-                val intent = Intent(this, AddList::class.java)
-                startActivity(intent)
-                true
-            }
-            R.id.items -> {
-                val intent = Intent(this, ItemsActivity::class.java)
-                startActivity(intent)
-                true
-            }
-            R.id.add_items -> {
-                val intent = Intent(this, AddItems::class.java)
-                startActivity(intent)
-                true
-            }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
