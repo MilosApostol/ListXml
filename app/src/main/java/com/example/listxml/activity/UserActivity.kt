@@ -10,6 +10,7 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -39,6 +40,7 @@ import com.example.listxml.databinding.ActivityUserBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
@@ -54,6 +56,8 @@ class UserActivity : BaseActivity<ActivityUserBinding>(), View.OnClickListener {
     private lateinit var requestCameraPermissionLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var requestGalleryPermissionLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var saveImageUri: Uri
+    private lateinit var currentUser: UserEntity
+
 
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +69,26 @@ class UserActivity : BaseActivity<ActivityUserBinding>(), View.OnClickListener {
         galleryLauncher()
         binding.textViewAddImage.setOnClickListener(this)
         binding.buttonSave.setOnClickListener(this)
+
+        userViewModel.user.observe(this@UserActivity) { user ->
+            currentUser = user ?: return@observe
+            if (currentUser.image.isNotEmpty()) {
+                val imagePath = currentUser.image
+                // Set image
+                if (File(imagePath).exists()) {
+                    val imageUri = Uri.fromFile(File(imagePath))
+                    lifecycleScope.launch {
+                        val inputStream =
+                            this@UserActivity.contentResolver.openInputStream(imageUri)
+                        val bitmap = BitmapFactory.decodeStream(inputStream)
+                        binding.imageView.setImageBitmap(bitmap)
+                    }
+                } else {
+                    binding.imageView.setImageResource(R.drawable.ic_default_person)
+                }
+
+            }
+        }
     }
 
     private fun galleryLauncher() {
@@ -116,7 +140,6 @@ class UserActivity : BaseActivity<ActivityUserBinding>(), View.OnClickListener {
         ) { result ->
             if (result.resultCode == Activity.RESULT_OK && result.data != null) {
                 val imageUri = result.data!!.data
-                // Handle the selected image Uri here
                 val source: ImageDecoder.Source = imageUri?.let {
                     ImageDecoder.createSource(
                         contentResolver, it

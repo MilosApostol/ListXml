@@ -18,6 +18,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
@@ -32,6 +33,7 @@ import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.data.room.list.ListViewModel
 import com.example.listxml.data.room.user.UserEntity
 import com.example.listxml.databinding.ActivityListBinding
+import com.example.listxml.databinding.HeaderNavigationDrawerBinding
 import com.example.listxml.databinding.ItemRvBinding
 import com.example.listxml.databinding.ListItemRvBinding
 import com.example.listxml.utill.hasInternetConnection
@@ -40,12 +42,14 @@ import com.google.firebase.auth.auth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 import java.io.FileNotFoundException
 
 
 @AndroidEntryPoint
 class ListActivity : BaseActivity<ActivityListBinding>(), ListAdapter.ListItemClickListener {
     private lateinit var itemsBinding: ListItemRvBinding
+    private lateinit var headerBinding: HeaderNavigationDrawerBinding
     private val listFireViewModel: ListFireViewModel by viewModels()
     private val userViewModel: UserViewModel by viewModels()
     private val userFireViewModel: UserFireViewModel by viewModels()
@@ -57,6 +61,7 @@ class ListActivity : BaseActivity<ActivityListBinding>(), ListAdapter.ListItemCl
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         itemsBinding = ListItemRvBinding.inflate(layoutInflater)
+        headerBinding = HeaderNavigationDrawerBinding.inflate(layoutInflater)
         setSupportActionBar(binding.toolbarList)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
@@ -75,23 +80,30 @@ class ListActivity : BaseActivity<ActivityListBinding>(), ListAdapter.ListItemCl
 
         userViewModel.user.observe(this@ListActivity) { user ->
             currentUser = user ?: return@observe
-            val imagePath = currentUser.image
-            val imageUri = Uri.parse("file://$imagePath")
-            val menuItem = binding.navigationView.menu.findItem(R.id.user_icon)
-            try {
-                val bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(imageUri))
-                val resizedBitmap = Bitmap.createScaledBitmap(
-                    bitmap,
-                    48,
-                    48,
-                    true
-                ) // Adjust the size as per your requirement
-                menuItem.icon = BitmapDrawable(resources, resizedBitmap)
 
-            } catch (e: FileNotFoundException) {
-                e.printStackTrace()
+            val imagePath = currentUser.image
+
+            headerBinding.textViewUserName.text = currentUser.userName
+
+            // Set image
+            if (File(imagePath).exists()) {
+                val imageUri = Uri.fromFile(File(imagePath))
+
+                lifecycleScope.launch {
+                    try {
+                        val inputStream = this@ListActivity.contentResolver.openInputStream(imageUri)
+                        val bitmap = BitmapFactory.decodeStream(inputStream)
+                        headerBinding.imageViewUser.setImageBitmap(bitmap)
+                    } catch (e: FileNotFoundException) {
+                        e.printStackTrace()
+                    }
+                }
+            } else {
+                headerBinding.imageViewUser.setImageResource(R.drawable.ic_default_person)
             }
+
         }
+
 
         listFireViewModel.lists.observe(this@ListActivity) {
             setupListToRecyclerView(it)
@@ -100,28 +112,25 @@ class ListActivity : BaseActivity<ActivityListBinding>(), ListAdapter.ListItemCl
             binding.drawerLayout.open()
 
         }
+
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
             menuItem.isChecked = true
 
             when (menuItem.itemId) {
-                R.id.user_icon -> {
-
-                    val intent = Intent(this, UserActivity::class.java)
+                //not working
+                R.id.text_view_user_name ->{
+                    val intent = Intent(this@ListActivity, UserActivity::class.java )
                     startActivity(intent)
-                    true
                 }
-
                 R.id.lists -> {
                     val intent = Intent(this, ListActivity::class.java)
                     startActivity(intent)
-
                 }
 
                 R.id.add_list -> {
                     val intent = Intent(this, AddList::class.java)
                     startActivity(intent)
                 }
-
                 R.id.items -> {
                     val intent = Intent(this, ItemsActivity::class.java)
                     startActivity(intent)
@@ -136,7 +145,7 @@ class ListActivity : BaseActivity<ActivityListBinding>(), ListAdapter.ListItemCl
             true
         }
         binding.fabAdd.setOnClickListener {
-            val intent = Intent(this, AddList::class.java)
+            val intent = Intent(this, UserActivity::class.java)
             startActivity(intent)
         }
         onBackPressedDispatcher.addCallback(this, backPressedCallback)

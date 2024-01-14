@@ -4,9 +4,11 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.listxml.Constants
+import com.example.listxml.R
 import com.example.listxml.data.firebase.list.ListFireViewModel
 import com.example.listxml.data.room.list.ListEntity
 import com.example.listxml.data.room.list.ListViewModel
@@ -28,10 +30,13 @@ class AddList : BaseActivity<ActivityAddListBinding>() {
     private val listFireViewModel: ListFireViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setSupportActionBar(binding.toolbarItems)
+        setSupportActionBar(binding.toolbarItems)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeButtonEnabled(true)
-        supportActionBar?.title = "AddLists"
-
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back)
+        binding.toolbarItems.setNavigationOnClickListener {
+            finish()
+        }
         val listId = intent.getStringExtra("listId")
         if (listId != null) {
             //this works

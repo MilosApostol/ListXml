@@ -35,6 +35,7 @@ class AddItems : BaseActivity<ActivityAddItemsBinding>(), ChooseItemsAdapter.Ite
     private lateinit var id: String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setSupportActionBar(binding.toolbarItems)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
         supportActionBar?.title = "AddItems"
