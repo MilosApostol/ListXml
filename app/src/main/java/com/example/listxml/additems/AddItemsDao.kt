@@ -14,5 +14,5 @@ interface AddItemsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertItem(item: AddItemsEntity)
     @Query("SELECT * FROM AddItemsEntity ORDER BY price DESC")
-    fun getAllCoins(): LiveData<List<AddItemsEntity>>
+    fun getAllItems(): LiveData<List<AddItemsEntity>>
 }

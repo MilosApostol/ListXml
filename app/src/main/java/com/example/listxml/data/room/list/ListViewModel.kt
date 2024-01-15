@@ -48,24 +48,6 @@ class ListViewModel @Inject constructor(
         listUpdate.postValue(fetchedList)
 
     }
-
-    fun updateList(list: ListEntity) {
-        viewModelScope.launch {
-            repository.updateList(list)
-            listUpdate.postValue(list)
-        }
-    }
-
-    fun getUser(): UserEntity {
-        return userSessionManager.getUser()
-    }
-
-    fun insertLists(listEntity: ListEntity) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.insertLists(listEntity)
-        }
-    }
-
     fun removeList(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             val list = repository.getListById(id)

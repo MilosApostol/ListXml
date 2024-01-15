@@ -10,21 +10,11 @@ import javax.inject.Inject
 
 class AddItemsRep @Inject constructor(private val apiService: ApiService, val dao: AddItemsDao) {
 
-    fun getAllItems(): LiveData<List<AddItemsEntity>> = dao.getAllCoins()
+    fun getAllItems(): LiveData<List<AddItemsEntity>> = dao.getAllItems()
 
     suspend fun getItems() = withContext(Dispatchers.IO) {
         val itemsList = apiService.getItems()
         dao.insertItems(itemsList)
-    }
-
-    suspend fun fetchFirstPageItems() = withContext(Dispatchers.IO) {
-        runCatching {
-            val items = apiService.getItems()
-
-            if (items != null) {
-                dao.insertItems(items)
-            }
-        }
     }
 
 }
