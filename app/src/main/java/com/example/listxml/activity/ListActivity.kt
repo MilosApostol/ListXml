@@ -145,7 +145,7 @@ class ListActivity : BaseActivity<ActivityListBinding>(), ListAdapter.ListItemCl
             true
         }
         binding.fabAdd.setOnClickListener {
-            val intent = Intent(this, UserActivity::class.java)
+            val intent = Intent(this, AddList::class.java)
             startActivity(intent)
         }
         onBackPressedDispatcher.addCallback(this, backPressedCallback)
